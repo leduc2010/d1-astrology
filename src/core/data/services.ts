@@ -1,4 +1,6 @@
 import { createContext, createElement, useContext, useState, type ReactNode } from 'react';
+
+import { createTelemetry, type Telemetry } from '../telemetry';
 import { StubRewardedAds, type RewardedAds } from './ads/rewardedAds';
 import { createAskUsageRepository, type AskUsageRepository } from './askUsageRepository';
 import type { Billing } from './billing/billing';
@@ -19,12 +21,15 @@ export interface AppServices {
   readonly billing: Billing;
   readonly rewardedAds: RewardedAds;
   readonly eraser: DataEraser;
+  /** Remote config, analytics and crash reports; no vendor SDK and never any birth data. */
+  readonly telemetry: Telemetry;
 }
 
 /** Store-backed services can be swapped (a real store SDK, fakes in tests); repositories cannot. */
 export interface ServiceOverrides {
   readonly billing?: Billing;
   readonly rewardedAds?: RewardedAds;
+  readonly telemetry?: Telemetry;
 }
 
 /** Builds every service over one [store], AsyncStorage by default. Call once per app. */
@@ -43,6 +48,7 @@ export function createAppServices(
     billing: overrides.billing ?? new StubBilling(),
     rewardedAds: overrides.rewardedAds ?? new StubRewardedAds(),
     eraser: new DataEraser(partners, profile, settings),
+    telemetry: overrides.telemetry ?? createTelemetry(),
   });
 }
 
