@@ -36,6 +36,8 @@ export * from './reveal';
 export * from './placements';
 export * from './legalLinks';
 export * from './readingBits';
+export * from './screenModel';
+export * from './appInfo';
 
 export * from './ortusScreen';
 export * from './placeholderSection';
