@@ -1,7 +1,8 @@
 import { Stack, usePathname, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo } from 'react';
+import { reloadAppAsync } from 'expo';
+import { useEffect, useMemo, useRef } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -20,7 +21,13 @@ import {
 import { applyConsent, screenNameOfSegments, screenViewEvent, useRemoteValues } from '@/core/telemetry';
 import { AdPlacementsProvider, PremiumOfferedProvider } from '@/core/ui';
 import { DesignSystemProvider, StarfieldBackground, useOrtusFonts, useReducedMotion } from '@/designsystem';
-import { isSupportedLanguage, setAppLanguage } from '@/i18n';
+import {
+  applyLayoutDirection,
+  getDeviceLanguage,
+  isSupportedLanguage,
+  type LanguageCode,
+  setAppLanguage,
+} from '@/i18n';
 import { Paths, restartAtOnboarding } from '@/navigation/routes';
 import { SoundProvider } from '@/sound';
 
@@ -56,11 +63,26 @@ function AppRoot() {
   const ready = (fontsLoaded || fontError !== null) && settings !== undefined && profile !== undefined;
 
   // Before the first screen renders, so its strings are already in the chosen language.
-  useMemo(() => {
-    if (!settings) return;
-    const language = settings.language;
-    setAppLanguage(language !== null && isSupportedLanguage(language) ? language : null);
-  }, [settings]);
+  const chosen = settings?.language ?? null;
+  const language = chosen !== null && isSupportedLanguage(chosen) ? chosen : null;
+  const loaded = settings !== undefined;
+  const directionChanged = useMemo(() => {
+    if (!loaded) return false;
+    void setAppLanguage(language);
+    return applyLayoutDirection(language ?? getDeviceLanguage());
+  }, [loaded, language]);
+
+  // RN reads the layout direction only at start-up: reload once when the owner switches into or
+  // out of Arabic. At start-up itself the forced direction is simply used from the next launch.
+  const startLanguage = useRef<LanguageCode | null | undefined>(undefined);
+  useEffect(() => {
+    if (!loaded) return;
+    if (startLanguage.current === undefined) {
+      startLanguage.current = language;
+      return;
+    }
+    if (directionChanged && language !== startLanguage.current) reloadAppAsync().catch(() => undefined);
+  }, [loaded, language, directionChanged]);
 
   // Analytics and crash reports follow the owner's answer, off until they say yes.
   const analyticsConsent = settings?.analyticsConsent ?? false;

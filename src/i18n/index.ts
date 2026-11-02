@@ -1,3 +1,4 @@
+export { applyLayoutDirection, type DirectionManager } from './direction';
 export { getDeviceLanguage, matchDeviceLocale, resolveDeviceLanguage, type DeviceLocale } from './deviceLanguage';
 export type { ArrayKey, PluralKey, StringKey } from './generated/keys';
 export { positionalParams, type FormatArg, type Helpers } from './helpers';

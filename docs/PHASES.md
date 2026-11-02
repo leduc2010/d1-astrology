@@ -46,7 +46,7 @@ Rules for every phase: `npm run typecheck`, `npm run lint`, `npm test` green →
 
 ## P7 — Telemetry, ads stubs, translations check, RTL
 - [x] Remote config defaults + clamps, analytics/crash no-ops behind usage consent (off by default); ad placements interface + stub (core/telemetry, wired in the root layout)
-- [ ] Locale key/placeholder check script, RTL for Arabic
+- [x] Locale key/placeholder check (`src/i18n/__tests__/locales.test.ts`, mirrors Kotlin `check_locales.py`), RTL for Arabic (`applyLayoutDirection` + one reload on switching direction)
 
 ## P8 — Verification
 - [ ] Walk every tab on the Android emulator; fix what it shows; final review
