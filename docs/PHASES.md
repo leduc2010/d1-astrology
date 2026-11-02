@@ -8,10 +8,10 @@ Rules for every phase: `npm run typecheck`, `npm run lint`, `npm test` green →
 
 ## P0 — Foundation
 - [x] Separate git repo, Expo SDK 58 + TypeScript strict + Expo Router (`src/app/`), Jest (`jest-expo`), ESLint (`expo lint`)
-- [ ] Design system `src/designsystem/`: colors, type, spacing, shapes, motion tokens, gradients, icons, starfield, buttons, cards, chips, tab bar, sheets, inputs, wheel picker
-- [ ] Navigation: bottom bar (Today · Calendar · Charts · Ask AI · Me), stacks per tab
-- [ ] Sound: cues ported from the Kotlin WAVs, one `SoundPlayer`, honours the Settings toggle, max one cue per action
-- [ ] i18n: i18next + converter from the Android `strings.xml` files, 14 locales (en default, vi, es, pt-BR, fr, de, ru, hi, id, ko, zh, ar, nl, bn)
+- [x] Design system `src/designsystem/`: colors, type, spacing, shapes, motion tokens, gradients, icons, starfield, buttons, cards, chips, tab bar, sheets, inputs, wheel picker
+- [~] Navigation (`src/navigation/routes.ts` done; shell wired with features): bottom bar (Today · Calendar · Charts · Ask AI · Me), stacks per tab
+- [x] Sound: cues ported from the Kotlin WAVs, one `SoundPlayer`, honours the Settings toggle, max one cue per action
+- [x] i18n: i18next + converter from the Android `strings.xml` files, 14 locales (en default, vi, es, pt-BR, fr, de, ru, hi, id, ko, zh, ar, nl, bn)
 
 ## P1 — Engine (pure TS + tests)
 - [x] Julian day, solar time, VN historical zones, lunar calendar (VN/CN meridian), Vietnam lunar switch years
@@ -54,3 +54,4 @@ Rules for every phase: `npm run typecheck`, `npm run lint`, `npm test` green →
 ## Log
 - 2026-11-02 — Repo created at `D:\DLAB\ortus-destiny-rn` (own git repo, per user request; not inside d1-astrology). Expo SDK 58, RN 0.88, React 19.3, TS 6.
 - 2026-11-03 — P1 engine ported to `src/engine/` (pure TS, 25 modules, barrel `index.ts`); all 11 Kotlin engine test classes ported (93 tests) incl. Swiss Ephemeris tolerances. Rename: natal `elementBalance` → `zodiacElementBalance` (clashed with BaZi `elementBalance` in the barrel).
+- 2026-11-03 — P0: design system (tokens checked against Kotlin `Dimens.kt`/`Color.kt` fixture, starfield via ported Kotlin `Random(seed)`), sound (`SoundPlayer`, 6 WAV cues), i18n (14 locales converted from `strings.xml`), route helpers. Flat route graph like Kotlin: tabs under `(tabs)`, child screens on the root stack.

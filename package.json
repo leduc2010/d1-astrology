@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
+    "@expo-google-fonts/be-vietnam-pro": "^0.4.1",
+    "@expo-google-fonts/cormorant-garamond": "^0.4.1",
+    "@expo-google-fonts/noto-serif-tc": "^0.4.5",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-masked-view/masked-view": "0.3.2",
     "eslint-config-expo": "~58.0.4",
     "expo": "~58.0.22",
     "expo-audio": "~58.0.11",
@@ -15,7 +19,9 @@
     "expo-router": "~58.0.29",
     "expo-splash-screen": "~58.0.12",
     "expo-status-bar": "~58.0.4",
+    "i18next": "^26.7.1",
     "react": "19.3.0",
+    "react-i18next": "^17.1.11",
     "react-native": "0.88.1",
     "react-native-gesture-handler": "~3.3.0",
     "react-native-reanimated": "4.7.1",
@@ -43,13 +49,18 @@
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
     "test": "jest",
-    "check": "tsc --noEmit && expo lint && jest"
+    "check": "tsc --noEmit && expo lint && jest",
+    "i18n:convert": "node scripts/convert-strings.mjs"
   },
   "private": true,
   "jest": {
     "preset": "jest-expo",
     "testPathIgnorePatterns": [
       "/node_modules/"
-    ]
+    ],
+    "setupFiles": [
+      "<rootDir>/src/designsystem/testing/jest.setup.ts"
+    ],
+    "resolver": "react-native-reanimated/jest/resolver"
   }
 }
