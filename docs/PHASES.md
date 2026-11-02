@@ -14,11 +14,11 @@ Rules for every phase: `npm run typecheck`, `npm run lint`, `npm test` green →
 - [ ] i18n: i18next + converter from the Android `strings.xml` files, 14 locales (en default, vi, es, pt-BR, fr, de, ru, hi, id, ko, zh, ar, nl, bn)
 
 ## P1 — Engine (pure TS + tests)
-- [ ] Julian day, solar time, VN historical zones, lunar calendar (VN/CN meridian), Vietnam lunar switch years
-- [ ] Can chi, almanac (Trực, 28 tú, hoàng đạo hours, solar terms, festivals, moon phase, directions, life trigram)
-- [ ] Sun, planets, natal chart (angles, whole-sign houses, aspects)
-- [ ] BaZi pillars, details, luck pillars, strength; Tử Vi chart + brightness; match (BaZi, folk, synastry); yearly outlook
-- [ ] Every Kotlin engine test ported, incl. Swiss Ephemeris reference tolerances
+- [x] Julian day, solar time, VN historical zones, lunar calendar (VN/CN meridian), Vietnam lunar switch years
+- [x] Can chi, almanac (Trực, 28 tú, hoàng đạo hours, solar terms, festivals, moon phase, directions, life trigram)
+- [x] Sun, planets, natal chart (angles, whole-sign houses, aspects)
+- [x] BaZi pillars, details, luck pillars, strength; Tử Vi chart + brightness; match (BaZi, folk, synastry); yearly outlook
+- [x] Every Kotlin engine test ported, incl. Swiss Ephemeris reference tolerances
 
 ## P2 — Splash, language, onboarding
 - [ ] Splash held until settings and profile load; language sheet
@@ -53,3 +53,4 @@ Rules for every phase: `npm run typecheck`, `npm run lint`, `npm test` green →
 
 ## Log
 - 2026-11-02 — Repo created at `D:\DLAB\ortus-destiny-rn` (own git repo, per user request; not inside d1-astrology). Expo SDK 58, RN 0.88, React 19.3, TS 6.
+- 2026-11-03 — P1 engine ported to `src/engine/` (pure TS, 25 modules, barrel `index.ts`); all 11 Kotlin engine test classes ported (93 tests) incl. Swiss Ephemeris tolerances. Rename: natal `elementBalance` → `zodiacElementBalance` (clashed with BaZi `elementBalance` in the barrel).
