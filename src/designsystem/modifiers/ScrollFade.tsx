@@ -1,6 +1,6 @@
 import MaskedViewNative from '@react-native-masked-view/masked-view';
-import { useState, type ComponentType, type ReactElement } from 'react';
-import { StyleSheet, View, type LayoutChangeEvent, type ScrollViewProps, type ViewProps } from 'react-native';
+import { useState, type ComponentType, type ReactElement, type Ref } from 'react';
+import { StyleSheet, View, type LayoutChangeEvent, type ScrollViewInstance, type ScrollViewProps, type ViewProps } from 'react-native';
 import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -13,7 +13,10 @@ import { OrtusSizes } from '../theme/dimens';
 // The package ships pre-React-19 class typings (NativeMethods mixin); its runtime is a plain component.
 const MaskedView = MaskedViewNative as unknown as ComponentType<ViewProps & { maskElement: ReactElement }>;
 
-export type FadingScrollViewProps = Omit<ScrollViewProps, 'onScroll'>;
+export type FadingScrollViewProps = Omit<ScrollViewProps, 'onScroll'> & {
+  /** The inner ScrollView, for `scrollTo` / `scrollToEnd`. */
+  readonly ref?: Ref<ScrollViewInstance>;
+};
 
 const OPAQUE = 'black';
 const CLEAR = 'rgba(0, 0, 0, 0)';
@@ -35,7 +38,14 @@ function setIfChanged(target: SharedValue<number>, value: number) {
  * with the distance scrolled (up to `OrtusSizes.scrollFade`). Strengths are computed on the UI
  * thread. `style` sizes the masked frame; everything else goes to the ScrollView.
  */
-export function FadingScrollView({ horizontal = false, style, onLayout, onContentSizeChange, ...rest }: FadingScrollViewProps) {
+export function FadingScrollView({
+  ref,
+  horizontal = false,
+  style,
+  onLayout,
+  onContentSizeChange,
+  ...rest
+}: FadingScrollViewProps) {
   const [viewport, setViewport] = useState(0);
   const offset = useSharedValue(0);
   const content = useSharedValue(0);
@@ -127,6 +137,7 @@ export function FadingScrollView({ horizontal = false, style, onLayout, onConten
     <MaskedView style={style} maskElement={mask}>
       <Animated.ScrollView
         {...rest}
+        ref={ref}
         horizontal={horizontal}
         style={styles.fill}
         onScroll={onScroll}
