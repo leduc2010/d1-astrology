@@ -1,20 +1,35 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import { GestureDetector, GestureHandlerRootView, usePanGesture } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
+import {
+  GestureDetector,
+  GestureHandlerRootView,
+  usePanGesture,
+} from "react-native-gesture-handler";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useT } from '@/i18n';
+import { useT } from "@/i18n";
 
-import { UiCue, useUiFeedback } from '../feedback/UiFeedback';
-import { OrtusPressable } from '../modifiers/OrtusPressable';
-import { useReducedMotion } from '../theme/DesignSystemProvider';
-import { OrtusColors as c } from '../theme/colors';
-import { OrtusSizes, OrtusSpacing, OrtusStroke } from '../theme/dimens';
-import { OrtusMotion } from '../theme/motion';
-import { OrtusRadii, OrtusShapes } from '../theme/shapes';
-import { OrtusText } from './OrtusText';
+import { UiCue, useUiFeedback } from "../feedback/UiFeedback";
+import { OrtusPressable } from "../modifiers/OrtusPressable";
+import { useReducedMotion } from "../theme/DesignSystemProvider";
+import { OrtusColors as c } from "../theme/colors";
+import { OrtusSizes, OrtusSpacing, OrtusStroke } from "../theme/dimens";
+import { OrtusMotion } from "../theme/motion";
+import { OrtusRadii, OrtusShapes } from "../theme/shapes";
+import { OrtusText } from "./OrtusText";
 
 /** Off-screen start for the slide; the real height replaces it after the first layout. */
 const OFFSCREEN = 2000;
@@ -36,7 +51,13 @@ export type OrtusBottomSheetProps = {
  * C16 bottom sheet: serif title, optional subtitle, the app's handle and scrim. Render it to show
  * it, unmount it after [onDismiss]. Slides up with the emphasized settle and plays the Open cue.
  */
-export function OrtusBottomSheet({ onDismiss, title, subtitle, style, children }: OrtusBottomSheetProps) {
+export function OrtusBottomSheet({
+  onDismiss,
+  title,
+  subtitle,
+  style,
+  children,
+}: OrtusBottomSheetProps) {
   const reduced = useReducedMotion();
   const feedback = useUiFeedback();
   const insets = useSafeAreaInsets();
@@ -56,7 +77,9 @@ export function OrtusBottomSheet({ onDismiss, title, subtitle, style, children }
   const close = useCallback(() => {
     if (closing.get()) return;
     closing.set(true);
-    const spec = reduced ? { duration: 0 } : { duration: OrtusMotion.STANDARD, easing: OrtusMotion.exit };
+    const spec = reduced
+      ? { duration: 0 }
+      : { duration: OrtusMotion.STANDARD, easing: OrtusMotion.exit };
     scrim.set(withTiming(0, spec));
     offset.set(
       withTiming(height, spec, (finished) => {
@@ -77,12 +100,15 @@ export function OrtusBottomSheet({ onDismiss, title, subtitle, style, children }
   const settleBack = OrtusMotion.standard(reduced);
   const drag = usePanGesture({
     onUpdate: (e) => {
-      'worklet';
+      "worklet";
       offset.set(Math.max(0, offset.get() + e.changeY));
     },
     onDeactivate: (e) => {
-      'worklet';
-      if (offset.get() > height * DISMISS_FRACTION || e.velocityY > FLING_VELOCITY) {
+      "worklet";
+      if (
+        offset.get() > height * DISMISS_FRACTION ||
+        e.velocityY > FLING_VELOCITY
+      ) {
         scheduleOnRN(close);
       } else {
         offset.set(withTiming(0, settleBack));
@@ -90,18 +116,36 @@ export function OrtusBottomSheet({ onDismiss, title, subtitle, style, children }
     },
   });
 
-  const sheetStyle = useAnimatedStyle(() => ({ transform: [{ translateY: offset.get() }] }));
+  const sheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: offset.get() }],
+  }));
   const scrimStyle = useAnimatedStyle(() => ({ opacity: scrim.get() }));
-  const label = tf('sheet_close');
+  const label = tf("sheet_close");
 
   return (
-    <Modal transparent visible statusBarTranslucent navigationBarTranslucent animationType="none" onRequestClose={close}>
-      <GestureHandlerRootView style={styles.root}>
-        <Animated.View style={[StyleSheet.absoluteFill, styles.scrim, scrimStyle]}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={close} accessible={false} importantForAccessibility="no" />
+    <Modal
+      transparent
+      visible
+      statusBarTranslucent
+      navigationBarTranslucent
+      animationType="none"
+      onRequestClose={close}
+    >
+      {/* The top inset pads the root, so a tall sheet stops below the status bar (Kotlin
+          `contentWindowInsets = safeDrawing.only(Top)`); a margin on the sheet would overflow. */}
+      <GestureHandlerRootView style={[styles.root, { paddingTop: insets.top }]}>
+        <Animated.View
+          style={[StyleSheet.absoluteFill, styles.scrim, scrimStyle]}
+        >
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={close}
+            accessible={false}
+            importantForAccessibility="no"
+          />
         </Animated.View>
         <Animated.View
-          style={[styles.sheet, { maxHeight: '100%', marginTop: insets.top }, sheetStyle, style]}
+          style={[styles.sheet, styles.sheetMax, sheetStyle, style]}
           onLayout={(e) => onLayout(e.nativeEvent.layout.height)}
           accessibilityViewIsModal
         >
@@ -110,16 +154,25 @@ export function OrtusBottomSheet({ onDismiss, title, subtitle, style, children }
               onPress={close}
               accessibilityRole="button"
               accessibilityLabel={label}
-              accessibilityActions={[{ name: 'escape', label }]}
+              accessibilityActions={[{ name: "escape", label }]}
               onAccessibilityAction={close}
               style={styles.handleTouch}
             >
               <View style={styles.handle} />
             </Pressable>
           </GestureDetector>
-          <View style={[styles.body, { paddingBottom: insets.bottom + OrtusSpacing.lg }]}>
+          <View
+            style={[
+              styles.body,
+              { paddingBottom: insets.bottom + OrtusSpacing.lg },
+            ]}
+          >
             <View style={styles.header}>
-              <OrtusText variant="h2" color={c.textPrimary} accessibilityRole="header">
+              <OrtusText
+                variant="h2"
+                color={c.textPrimary}
+                accessibilityRole="header"
+              >
                 {title}
               </OrtusText>
               {subtitle ? (
@@ -128,7 +181,7 @@ export function OrtusBottomSheet({ onDismiss, title, subtitle, style, children }
                 </OrtusText>
               ) : null}
             </View>
-            {typeof children === 'function' ? children(close) : children}
+            {typeof children === "function" ? children(close) : children}
           </View>
         </Animated.View>
       </GestureHandlerRootView>
@@ -145,7 +198,13 @@ export type OrtusRadioOptionProps = {
 };
 
 /** C16 radio option row (h54) used inside sheets. */
-export function OrtusRadioOption({ text, selected, onPress, style, testID }: OrtusRadioOptionProps) {
+export function OrtusRadioOption({
+  text,
+  selected,
+  onPress,
+  style,
+  testID,
+}: OrtusRadioOptionProps) {
   return (
     <OrtusPressable
       onPress={onPress}
@@ -154,7 +213,10 @@ export function OrtusRadioOption({ text, selected, onPress, style, testID }: Ort
       accessibilityState={{ selected, checked: selected }}
       testID={testID}
       outerStyle={[styles.optionOuter, style]}
-      style={[styles.option, { borderColor: selected ? c.outlineStrong : c.outline }]}
+      style={[
+        styles.option,
+        { borderColor: selected ? c.outlineStrong : c.outline },
+      ]}
     >
       <OrtusText variant="body" color={c.textPrimary} style={styles.flex}>
         {text}
@@ -174,31 +236,45 @@ export function RadioDot({ selected }: { selected: boolean }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, justifyContent: 'flex-end' },
+  root: { flex: 1, justifyContent: "flex-end" },
   flex: { flex: 1 },
   scrim: { backgroundColor: c.scrim },
+  sheetMax: { maxHeight: "100%" },
   sheet: {
     ...OrtusShapes.sheet,
     backgroundColor: c.surfaceSolid,
     borderWidth: OrtusStroke.hairline,
     borderBottomWidth: 0,
     borderColor: c.sheetBorder,
-    alignItems: 'center',
-    overflow: 'hidden',
+    alignItems: "center",
+    overflow: "hidden",
   },
-  handleTouch: { paddingVertical: OrtusSpacing.sm, paddingHorizontal: OrtusSpacing.md },
+  handleTouch: {
+    paddingVertical: OrtusSpacing.sm,
+    paddingHorizontal: OrtusSpacing.md,
+  },
   handle: {
     width: OrtusSizes.sheetHandleWidth,
     height: OrtusSizes.sheetHandleHeight,
     borderRadius: OrtusRadii.pill,
     backgroundColor: c.sheetHandle,
   },
-  body: { alignSelf: 'stretch', paddingHorizontal: OrtusSpacing.screen, gap: OrtusSpacing.md },
+  // Shrinks so a ScrollView child scrolls inside a full-height sheet instead of overflowing it.
+  body: {
+    alignSelf: "stretch",
+    flexShrink: 1,
+    paddingHorizontal: OrtusSpacing.screen,
+    gap: OrtusSpacing.md,
+  },
   header: { gap: OrtusSpacing.xxs },
-  optionOuter: { alignSelf: 'stretch', height: OrtusSizes.radioOptionHeight, borderRadius: OrtusRadii.input },
+  optionOuter: {
+    alignSelf: "stretch",
+    height: OrtusSizes.radioOptionHeight,
+    borderRadius: OrtusRadii.input,
+  },
   option: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderRadius: OrtusRadii.input,
     backgroundColor: c.surfaceRaised,
     borderWidth: OrtusStroke.hairline,
@@ -208,10 +284,15 @@ const styles = StyleSheet.create({
     width: OrtusSizes.radio,
     height: OrtusSizes.radio,
     borderRadius: OrtusRadii.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   radioOn: { backgroundColor: c.accent },
   radioOff: { borderWidth: OrtusStroke.control, borderColor: c.textMuted },
-  radioDot: { width: OrtusSizes.radioDot, height: OrtusSizes.radioDot, borderRadius: OrtusRadii.pill, backgroundColor: c.onAccent },
+  radioDot: {
+    width: OrtusSizes.radioDot,
+    height: OrtusSizes.radioDot,
+    borderRadius: OrtusRadii.pill,
+    backgroundColor: c.onAccent,
+  },
 });
