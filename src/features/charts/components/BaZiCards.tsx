@@ -1,4 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import { useRef } from 'react';
+import { StyleSheet, View, type ScrollViewInstance } from 'react-native';
 
 import { elementColors, elementName, listText, stemBranchHan, stemBranchName, type UiText } from '@/core/ui';
 import {
@@ -71,6 +72,14 @@ export function LuckCard({ charts }: { charts: BirthCharts }) {
   const step = OrtusSizes.luckCardWidth + OrtusSpacing.xs;
   const opening = baZi.currentLuck === null ? 0 : Math.max(baZi.currentLuck - 1, 0) * step;
   const yearStem = baZi.columns.find((col) => col.kind === PillarKind.YEAR)?.pillar?.stem;
+  const strip = useRef<ScrollViewInstance>(null);
+  const opened = useRef(false);
+  // Once the tiles are measured; scrolling (not `contentOffset`) also sets the leading fade.
+  const openAtCurrent = () => {
+    if (opened.current) return;
+    opened.current = true;
+    strip.current?.scrollTo({ x: opening, animated: false });
+  };
   return (
     <OrtusSectionCard title={t.tf('charts_luck_label', baZi.luckStartAge)}>
       {yearStem !== undefined ? (
@@ -80,8 +89,9 @@ export function LuckCard({ charts }: { charts: BirthCharts }) {
       ) : null}
       <FadingScrollView
         horizontal
+        ref={strip}
         showsHorizontalScrollIndicator={false}
-        contentOffset={{ x: opening, y: 0 }}
+        onContentSizeChange={openAtCurrent}
         contentContainerStyle={styles.strip}
       >
         {baZi.luck.map((luck, index) => (
