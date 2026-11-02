@@ -1,3 +1,4 @@
+import { useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 
 import { EraseStatus, useEraseStatus, useServices } from '@/core/data';
@@ -5,6 +6,7 @@ import { useResumedOnly } from '@/core/ui';
 import { finishOnboarding, goBack } from '@/navigation/routes';
 
 import { OnboardingFlow } from './OnboardingFlow';
+import { OnboardingStep } from './onboardingState';
 import { useOnboardingModel } from './useOnboardingModel';
 
 const NO_ERASE_RETRY = (): void => undefined;
@@ -32,6 +34,8 @@ export function OnboardingScreen() {
 export function EditBirthScreen() {
   const [controller, state] = useOnboardingModel(true);
   const onExit = useResumedOnly(goBack);
+  // After a failed save nothing is running, so the swipe works again (iOS has no other way out).
+  useNoSwipeBackWhile(state.step === OnboardingStep.Building && !state.build.saveFailed);
   useEffect(() => {
     if (state.isFinished) goBack();
   }, [state.isFinished]);
@@ -44,4 +48,15 @@ export function EditBirthScreen() {
       onExit={onExit}
     />
   );
+}
+
+/**
+ * While the chart is built and saved a swipe-back would unmount the screen and drop the correction
+ * before it is saved, so the gesture waits. System back is already held by the flow itself.
+ */
+function useNoSwipeBackWhile(holding: boolean): void {
+  const navigation = useNavigation();
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !holding });
+  }, [holding, navigation]);
 }

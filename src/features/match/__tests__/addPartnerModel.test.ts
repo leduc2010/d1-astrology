@@ -1,5 +1,5 @@
-import { epochDayOf } from '@/core/data';
-import { Gender, Relationship } from '@/core/model';
+import { epochDayOf, searchPlaces } from '@/core/data';
+import { type BirthPlace, Gender, Relationship } from '@/core/model';
 import { FakePartnerRepository } from '@/core/testing';
 import { BirthDates, CalendarMode } from '@/core/ui';
 import { civilDate } from '@/engine';
@@ -15,6 +15,7 @@ import {
 import { HANOI } from '../testing/matchTestData';
 
 const TODAY = civilDate(2026, 11, 1);
+const SAIGON = searchPlaces('Sài Gòn')[0]!;
 
 /** Holds the form the way the Kotlin view model did: one state, changed only through actions. */
 function form(partners: FakePartnerRepository) {
@@ -105,6 +106,25 @@ describe('AddPartnerViewModel', () => {
     await f.save();
 
     expect(partners.current()[0]!.profile.enteredAsLunar).toBe(true);
+  });
+
+  test('a Southern lunar date before 1976 lands on the same solar day as for the owner', async () => {
+    // Tết Mậu Thân: lunar 1/1/1968 was 29 January in the North and 30 January in the South,
+    // the day onboarding stores for the owner too.
+    async function saveLunarNewYear(place: BirthPlace) {
+      const repository = new FakePartnerRepository();
+      const lunar = form(repository);
+      fillIn(lunar);
+      lunar.send({ type: 'calendarMode', mode: CalendarMode.Lunar });
+      lunar.send({ type: 'year', year: 1968 });
+      lunar.send({ type: 'month', month: 1 });
+      lunar.send({ type: 'day', day: 1 });
+      lunar.send({ type: 'place', place });
+      await lunar.save();
+      return repository.current()[0]!.profile.date;
+    }
+    expect(await saveLunarNewYear(HANOI)).toEqual({ year: 1968, month: 1, day: 29 });
+    expect(await saveLunarNewYear(SAIGON)).toEqual({ year: 1968, month: 1, day: 30 });
   });
 
   test('a future date blocks saving', () => {

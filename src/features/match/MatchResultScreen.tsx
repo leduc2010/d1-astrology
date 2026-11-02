@@ -1,3 +1,4 @@
+import { useIsFocused } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
@@ -27,8 +28,14 @@ import { useMatchResultModel } from './useMatchResultModel';
 export function MatchResultScreen({ partnerId }: { partnerId: number }) {
   const model = useMatchResultModel(partnerId);
   const onBack = useResumedOnly(goBack);
-  return <MatchResultContent state={model.state} onDelete={model.onDelete} onGone={goBack} onBack={onBack} />;
+  // A person deleted elsewhere (Me > Profiles) while this page sits behind it closes the page only
+  // once it is in front again; going back now would pop the screen the user is looking at.
+  const isFocused = useIsFocused();
+  const onGone = isFocused ? goBack : WAIT_UNTIL_IN_FRONT;
+  return <MatchResultContent state={model.state} onDelete={model.onDelete} onGone={onGone} onBack={onBack} />;
 }
+
+const WAIT_UNTIL_IN_FRONT = (): void => undefined;
 
 export type MatchResultContentProps = {
   state: MatchResultUiState;

@@ -103,16 +103,19 @@ function EraseFailedNotice({ onRetry }: { onRetry: () => void }) {
 
 function LanguageLink({ onPress }: { onPress: () => void }) {
   const t = useT();
+  const language = currentLanguageLabel(t);
+  // One screen-reader stop: the globe is decoration, the button says what it changes.
   return (
     <View style={styles.languageLink}>
-      <View accessible accessibilityLabel={t.tf('onboarding_language')}>
+      <View importantForAccessibility="no-hide-descendants" accessibilityElementsHidden>
         <OrtusIcons.Globe size={OrtusSizes.iconSmall} color={c.textSecondary} />
       </View>
       <OrtusLinkButton
-        text={currentLanguageLabel(t)}
+        text={language}
         onPress={onPress}
         color={c.textSecondary}
         trailingIcon={OrtusIcons.ChevronDown}
+        accessibilityLabel={`${t.tf('onboarding_language')}, ${language}`}
       />
     </View>
   );

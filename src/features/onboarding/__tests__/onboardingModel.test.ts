@@ -1,4 +1,4 @@
-import { searchPlaces } from '@/core/data';
+import { type ProfileRepository, searchPlaces } from '@/core/data';
 import { type BirthPlace, type BirthProfile, birthClock, Gender } from '@/core/model';
 import { FakeProfileRepository, FakeSettingsRepository } from '@/core/testing';
 import { CalendarMode } from '@/core/ui';
@@ -20,7 +20,7 @@ beforeEach(() => {
   profiles = new FakeProfileRepository();
 });
 
-const controller = (profile: FakeProfileRepository = profiles, isEditing = false): OnboardingController =>
+const controller = (profile: ProfileRepository = profiles, isEditing = false): OnboardingController =>
   new OnboardingController({ settings, profile, isEditing, today: TODAY, wait: instant });
 
 /** Walks from Welcome to Review with a complete profile. */
@@ -44,6 +44,48 @@ function fillIn(model: OnboardingController, timeUnknown = false): void {
 }
 
 const settingsNow = () => settings.state.current();
+
+/** A store that has not been read yet; the test decides when (and whether) the read finishes. */
+class SlowProfileRepository implements ProfileRepository {
+  private readonly stored: FakeProfileRepository;
+  private settle: ((profile: BirthProfile | null) => void) | null = null;
+  private fail: ((error: Error) => void) | null = null;
+
+  constructor(initial: BirthProfile | null) {
+    this.stored = new FakeProfileRepository(initial);
+  }
+
+  current(): BirthProfile | null | undefined {
+    return undefined;
+  }
+
+  load(): Promise<BirthProfile | null> {
+    return new Promise((resolve, reject) => {
+      this.settle = resolve;
+      this.fail = reject;
+    });
+  }
+
+  subscribe(listener: (value: BirthProfile | null) => void): () => void {
+    return this.stored.subscribe(listener);
+  }
+
+  savePrimary(profile: BirthProfile): Promise<void> {
+    return this.stored.savePrimary(profile);
+  }
+
+  clear(): Promise<void> {
+    return this.stored.clear();
+  }
+
+  finishLoad(): void {
+    this.settle?.(this.stored.saved);
+  }
+
+  failLoad(): void {
+    this.fail?.(new Error('unreadable store'));
+  }
+}
 
 describe('OnboardingController', () => {
   test('full flow saves the profile and consents, then finishes', async () => {
@@ -217,6 +259,53 @@ describe('OnboardingController', () => {
     }
     expect(await saveLunarNewYear(hanoi)).toEqual({ year: 1968, month: 1, day: 29 });
     expect(await saveLunarNewYear(saigon)).toEqual({ year: 1968, month: 1, day: 30 });
+  });
+
+  test('a saved profile that loads late does not overwrite an edit', async () => {
+    const saved: BirthProfile = {
+      name: 'Lan',
+      gender: Gender.FEMALE,
+      date: { year: 1995, month: 9, day: 9 },
+      clock: null,
+      place: hanoi,
+      enteredAsLunar: false,
+    };
+    const slow = new SlowProfileRepository(saved);
+    const model = controller(slow, true);
+    model.setYear(1990); // the user turns a wheel before storage answers
+
+    slow.finishLoad();
+    await model.whenIdle();
+    expect(model.state.date.year).toBe(1990);
+    expect(model.state.name).toBe('');
+  });
+
+  test('a saved profile that loads late fills in an untouched editor', async () => {
+    const saved: BirthProfile = {
+      name: 'Lan',
+      gender: Gender.FEMALE,
+      date: { year: 1995, month: 9, day: 9 },
+      clock: null,
+      place: hanoi,
+      enteredAsLunar: false,
+    };
+    const slow = new SlowProfileRepository(saved);
+    const model = controller(slow, true);
+
+    slow.finishLoad();
+    await model.whenIdle();
+    expect(model.state.date.year).toBe(1995);
+    expect(model.state.name).toBe('Lan');
+  });
+
+  test('a failed load leaves the editor empty', async () => {
+    const slow = new SlowProfileRepository(null);
+    const model = controller(slow, true);
+
+    slow.failLoad();
+    await model.whenIdle();
+    expect(model.state.step).toBe(OnboardingStep.Date);
+    expect(model.state.name).toBe('');
   });
 
   test('editing a Southern lunar birthday keeps the date', async () => {

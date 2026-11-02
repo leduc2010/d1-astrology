@@ -230,10 +230,17 @@ export class OnboardingController {
       if (known !== null) this.prefill(known);
       return;
     }
+    // Any change since (a wheel turned, a step taken) means the user is already typing: leave it alone.
+    const untouched = this.current;
     this.track(
-      this.options.profile.load().then((profile) => {
-        if (profile !== null) this.prefill(profile);
-      }),
+      this.options.profile
+        .load()
+        .then((profile) => {
+          if (profile !== null && this.current === untouched) this.prefill(profile);
+        })
+        .catch(() => {
+          // Storage could not be read: the editor simply opens empty, as for a first entry.
+        }),
     );
   }
 

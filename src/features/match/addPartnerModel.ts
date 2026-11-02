@@ -1,4 +1,4 @@
-import { PlaceCatalog, searchPlaces, type PartnerRepository } from '@/core/data';
+import { isSouthVietnam, PlaceCatalog, searchPlaces, type PartnerRepository } from '@/core/data';
 import {
   birthClock,
   type BirthClock,
@@ -8,6 +8,7 @@ import {
   type Relationship,
 } from '@/core/model';
 import { BirthDates, CalendarMode, dateInput, type DateCheck, type DateInput } from '@/core/ui';
+import { vietnamToSolar } from '@/engine';
 
 const NOON = 12;
 const SUGGESTED_PLACES = 6;
@@ -141,16 +142,20 @@ export const addPartnerReducer =
 
 /** The person as they will be stored, or null while the form is incomplete. */
 export function profileOf(s: AddPartnerState): BirthProfile | null {
-  const solar = s.dateCheck?.solar;
+  const check = s.dateCheck;
   const name = s.name.trim();
-  if (!solar || name === '' || s.gender === null || s.place === null) return null;
+  if (check === null || name === '' || s.gender === null || s.place === null) return null;
+  const isLunar = s.date.mode === CalendarMode.Lunar;
+  // As in onboarding: the wheels read a lunar date in the Northern calendar, but a Southern birth
+  // before 1976 used Beijing time, so the same lunar date can fall a day apart there.
+  const solar = isLunar ? (vietnamToSolar(check.lunar, isSouthVietnam(s.place)) ?? check.solar) : check.solar;
   return Object.freeze({
     name,
     gender: s.gender,
     date: Object.freeze({ year: solar.year, month: solar.month, day: solar.day }),
     clock: s.isTimeUnknown ? null : s.clock,
     place: s.place,
-    enteredAsLunar: s.date.mode === CalendarMode.Lunar,
+    enteredAsLunar: isLunar,
   });
 }
 

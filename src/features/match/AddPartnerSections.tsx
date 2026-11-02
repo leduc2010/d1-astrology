@@ -116,7 +116,7 @@ export function PlaceSection({ state, actions }: SectionProps) {
         <OrtusCard contentPadding={OrtusSpacing.xs}>
           {places.map((place, index) => (
             <OrtusListRow
-              key={`${place.name}-${place.region}`}
+              key={`${place.name}|${place.region}|${place.latitude}|${place.longitude}`}
               title={placeName(t, place)}
               icon={OrtusIcons.Pin}
               trailing={place === state.place ? RowTrailing.Selected : RowTrailing.None}
