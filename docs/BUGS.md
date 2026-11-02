@@ -16,5 +16,6 @@ Format: `R###` · severity · area — description. Kotlin bug IDs (B###) refer 
 - R011 · LOW · calendar — Month pager is a paging FlatList (current = page >51% visible); month pages and the 60-day upcoming list are built on the JS thread; the day hero only fades in (no cross-fade out). Dates and weekday names use `Intl`, so a few locales may word them slightly differently from `java.time`; the date-pattern test checks pattern letters instead of parsing with Java.
 - R012 · LOW · today/calendar — `fullDateText` is duplicated in `features/today` and `features/calendar`; move the date text helpers into `core/ui/dateText.ts`.
 - R013 · LOW · charts — Charts computed on the JS thread; natal wheel glyphs tilt with the ring during the 1.2 s intro (upright at rest); luck strip opens at the current pillar via `contentOffset` (FadingScrollView takes no ref, so the leading fade can lag); selected palace card fades in without cross-fading the old one out; open sheets are not restored after process death.
+- R014 · LOW · onboarding — Save failures catch any error (Kotlin: IOException) and offer retry; the coordinates sheet shows a saved place as `20` not `20.0` and uses the `numeric` keyboard; steps drift with Reanimated keyframes instead of `AnimatedContent`, and the erase-failed notice fades rather than expanding.
 
 ## Fixed
