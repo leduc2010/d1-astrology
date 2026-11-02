@@ -11,5 +11,7 @@ Format: `R###` · severity · area — description. Kotlin bug IDs (B###) refer 
 - R006 · LOW · core/data — Zone offsets come from `Intl` (Hermes ICU); old historical rules may differ from java.time tzdb on some devices. Vietnam North/South history is table-driven and matches Kotlin tests.
 - R007 · LOW · core/data — Birth clock keeps minutes only (seconds truncated), as Kotlin; AsyncStorage writes are per-key, not atomic across a whole profile.
 - R008 · INFO · core/data — Settings `clear()` keeps the chosen `app_language` (Android keeps per-app locale outside DataStore); AskUsage stores the local epoch day instead of an ISO string.
+- R009 · LOW · ai — Support opens as the `/ai-support` stack screen (Kotlin cross-fades inside the tab). Support country comes from the `expo-localization` region only (Kotlin: network → SIM → system region).
+- R010 · LOW · ai — Rewarded-ad offer is gated by the `ai_rewarded` placement (none for Premium); readings for the chat are computed on the JS thread; usage save errors are swallowed (Kotlin: IOException only). Chat uses a plain ScrollView (FadingScrollView takes no ref) for scroll-to-end. `aiModel.ts` is 326 lines.
 
 ## Fixed
