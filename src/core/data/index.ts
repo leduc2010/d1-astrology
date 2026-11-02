@@ -45,6 +45,7 @@ export {
   zoneForCoordinates,
 } from './place/birthZones';
 export { foldPlaceText, PlaceCatalog, searchPlaces } from './place/placeCatalog';
+export { parseOffsetSeconds, ZoneError } from './place/zoneOffset';
 export { createProfileRepository, PROFILE_FILE, type ProfileRepository } from './profileRepository';
 export {
   createAppServices,
