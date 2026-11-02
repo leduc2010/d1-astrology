@@ -1,25 +1,40 @@
-import type { ReactNode } from 'react';
-import { I18nManager, StyleSheet, View, type ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import type { ReactNode } from "react";
+import { I18nManager, StyleSheet, View, type ViewStyle } from "react-native";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
-import { elementColors, palaceRoleName, stemBranchName, transformationColors, transformationShortName } from '@/core/ui';
+import {
+  elementColors,
+  palaceRoleName,
+  stemBranchName,
+  transformationColors,
+  transformationShortName,
+} from "@/core/ui";
 import {
   OrtusColors as c,
   OrtusGradients,
-  OrtusMotion,
   OrtusPressable,
   OrtusShapes,
   OrtusSizes,
   OrtusSpacing,
   OrtusStroke,
   OrtusText,
-  useReducedMotion,
-} from '@/designsystem';
-import { Branch, mainStarElement, PalaceRole } from '@/engine';
-import { useT } from '@/i18n';
+  useAnimatedValue,
+} from "@/designsystem";
+import { Branch, mainStarElement, PalaceRole } from "@/engine";
+import { useT } from "@/i18n";
 
-import { starName } from '../chartsText';
-import { oppositeOf, palaceOf, trineOf, type PalaceView, type StarMark, type ZiWeiView } from '../model/chartViews';
+import { starName } from "../chartsText";
+import {
+  oppositeOf,
+  palaceOf,
+  trineOf,
+  type PalaceView,
+  type StarMark,
+  type ZiWeiView,
+} from "../model/chartViews";
 
 /* The classic square Tử Vi board: twelve palaces round the edge, Tỵ top-left, Dần bottom-left, in every language. */
 
@@ -30,10 +45,10 @@ const RIGHT_SIDE = [Branch.YOU, Branch.XU] as const;
 const CENTRE_SPAN = 2;
 
 /** Text inside the board keeps the reading direction, though the board itself never mirrors. */
-const TEXT_DIRECTION = I18nManager.isRTL ? 'rtl' : 'ltr';
+const TEXT_DIRECTION = I18nManager.isRTL ? "rtl" : "ltr";
 
 /** How a palace relates to the one picked: itself, a trine or the opposite palace, or none. */
-type Link = 'selected' | 'related' | 'none';
+type Link = "selected" | "related" | "none";
 
 export type PalaceGridProps = {
   ziWei: ZiWeiView;
@@ -42,11 +57,21 @@ export type PalaceGridProps = {
   centre: ReactNode;
 };
 
-export function PalaceGrid({ ziWei, selected, onSelect, centre }: PalaceGridProps) {
+export function PalaceGrid({
+  ziWei,
+  selected,
+  onSelect,
+  centre,
+}: PalaceGridProps) {
   const related = new Set(
-    selected === null ? [] : [...trineOf(ziWei, selected), oppositeOf(ziWei, selected)].map((p) => p.branch),
+    selected === null
+      ? []
+      : [...trineOf(ziWei, selected), oppositeOf(ziWei, selected)].map(
+          (p) => p.branch,
+        ),
   );
-  const linkOf = (branch: Branch): Link => (branch === selected ? 'selected' : related.has(branch) ? 'related' : 'none');
+  const linkOf = (branch: Branch): Link =>
+    branch === selected ? "selected" : related.has(branch) ? "related" : "none";
   const cell = (branch: Branch, style: ViewStyle = styles.weighted) => (
     <PalaceCell
       key={branch}
@@ -61,9 +86,15 @@ export function PalaceGrid({ ziWei, selected, onSelect, centre }: PalaceGridProp
     <View style={styles.board}>
       <View style={styles.row}>{TOP_ROW.map((b) => cell(b))}</View>
       <View style={styles.row}>
-        <View style={styles.side}>{LEFT_SIDE.map((b) => cell(b, styles.full))}</View>
-        <View style={styles.centre}>{centre}</View>
-        <View style={styles.side}>{RIGHT_SIDE.map((b) => cell(b, styles.full))}</View>
+        <View style={styles.side}>
+          {LEFT_SIDE.map((b) => cell(b, styles.full))}
+        </View>
+        <View style={styles.centre}>
+          <View style={styles.centreContent}>{centre}</View>
+        </View>
+        <View style={styles.side}>
+          {RIGHT_SIDE.map((b) => cell(b, styles.full))}
+        </View>
       </View>
       <View style={styles.row}>{BOTTOM_ROW.map((b) => cell(b))}</View>
     </View>
@@ -78,25 +109,34 @@ type PalaceCellProps = {
   style: ViewStyle;
 };
 
-const BORDERS: Record<Link, string> = {
-  selected: c.chart.selectedBorder,
-  related: c.glowBorder,
-  none: c.chart.gridLine,
-};
+/** Border stops, indexed by link, so a change of selection glides from one colour to the next. */
+const LINK_STOPS: Record<Link, number> = { none: 0, related: 1, selected: 2 };
+const STOPS = [0, 1, 2];
+const BORDERS = [c.chart.gridLine, c.glowBorder, c.chart.selectedBorder];
 
-function PalaceCell({ palace, isCurrentDecade, link, onPress, style }: PalaceCellProps) {
+function PalaceCell({
+  palace,
+  isCurrentDecade,
+  link,
+  onPress,
+  style,
+}: PalaceCellProps) {
   const t = useT();
-  const reduced = useReducedMotion();
-  const target = BORDERS[link];
-  const border = useAnimatedStyle(() => ({ borderColor: withTiming(target, OrtusMotion.standard(reduced)) }));
-  const isSelected = link === 'selected';
+  const stop = useAnimatedValue(LINK_STOPS[link]);
+  const border = useAnimatedStyle(() => ({
+    borderColor: interpolateColor(stop.get(), STOPS, BORDERS),
+  }));
+  const isSelected = link === "selected";
   return (
     <OrtusPressable
       onPress={onPress}
       cue={null}
       accessibilityState={{ selected: isSelected }}
       outerStyle={style}
-      style={[styles.cellFrame, isSelected ? styles.cellSelected : styles.cellIdle]}
+      style={[
+        styles.cellFrame,
+        isSelected ? styles.cellSelected : styles.cellIdle,
+      ]}
     >
       <Animated.View style={[styles.cell, border]}>
         {/* Stars take what room is left above the footer; a crowded palace clips rather than spill. */}
@@ -113,14 +153,26 @@ function PalaceCell({ palace, isCurrentDecade, link, onPress, style }: PalaceCel
             <StarLine
               key={`${mark.star.kind}-${mark.star.star}`}
               mark={mark}
-              color={mark.star.kind === 'main' ? elementColors(mainStarElement(mark.star.star)).content : c.textBody}
+              color={
+                mark.star.kind === "main"
+                  ? elementColors(mainStarElement(mark.star.star)).content
+                  : c.textBody
+              }
             />
           ))}
           {palace.luckyStars.map((mark) => (
-            <StarLine key={`${mark.star.kind}-${mark.star.star}`} mark={mark} color={c.chart.luckyStar} />
+            <StarLine
+              key={`${mark.star.kind}-${mark.star.star}`}
+              mark={mark}
+              color={c.chart.luckyStar}
+            />
           ))}
           {palace.maleficStars.map((mark) => (
-            <StarLine key={`${mark.star.kind}-${mark.star.star}`} mark={mark} color={c.chart.maleficStar} />
+            <StarLine
+              key={`${mark.star.kind}-${mark.star.star}`}
+              mark={mark}
+              color={c.chart.maleficStar}
+            />
           ))}
         </View>
         <CellFooter palace={palace} isCurrentDecade={isCurrentDecade} />
@@ -135,7 +187,13 @@ function StarLine({ mark, color }: { mark: StarMark; color: string }) {
   const tr = mark.transformation;
   return (
     <View style={styles.starLine}>
-      <OrtusText variant="microStrong" color={color} numberOfLines={1} ellipsizeMode="tail" style={styles.shrink}>
+      <OrtusText
+        variant="microStrong"
+        color={color}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        style={styles.shrink}
+      >
         {starName(t, mark.star)}
       </OrtusText>
       {tr !== null ? (
@@ -143,7 +201,10 @@ function StarLine({ mark, color }: { mark: StarMark; color: string }) {
           variant="nano"
           color={transformationColors(tr).content}
           numberOfLines={1}
-          style={[styles.badge, { backgroundColor: transformationColors(tr).container }]}
+          style={[
+            styles.badge,
+            { backgroundColor: transformationColors(tr).container },
+          ]}
         >
           {transformationShortName(t, tr)}
         </OrtusText>
@@ -153,22 +214,34 @@ function StarLine({ mark, color }: { mark: StarMark; color: string }) {
 }
 
 /** Palace pillar and decade ages, with Thân / Tuần / Triệt marks when they fall here. */
-function CellFooter({ palace, isCurrentDecade }: { palace: PalaceView; isCurrentDecade: boolean }) {
+function CellFooter({
+  palace,
+  isCurrentDecade,
+}: {
+  palace: PalaceView;
+  isCurrentDecade: boolean;
+}) {
   const t = useT();
   const marks = [
-    palace.isBody ? t.tf('charts_mark_body') : null,
-    palace.isVoid ? t.tf('charts_mark_void') : null,
-    palace.isCut ? t.tf('charts_mark_cut') : null,
+    palace.isBody ? t.tf("charts_mark_body") : null,
+    palace.isVoid ? t.tf("charts_mark_void") : null,
+    palace.isCut ? t.tf("charts_mark_cut") : null,
   ].filter((m): m is string => m !== null);
   return (
     <View>
       {marks.length > 0 ? (
         <OrtusText variant="nano" color={c.mysticLight} numberOfLines={1}>
-          {marks.join(t.tf('charts_dot_separator'))}
+          {marks.join(t.tf("charts_dot_separator"))}
         </OrtusText>
       ) : null}
       <View style={styles.footerRow}>
-        <OrtusText variant="nano" color={c.textMuted} numberOfLines={1} ellipsizeMode="tail" style={styles.flex}>
+        <OrtusText
+          variant="nano"
+          color={c.textMuted}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={styles.flex}
+        >
           {stemBranchName(t, palace.pillar)}
         </OrtusText>
         <OrtusText
@@ -176,7 +249,7 @@ function CellFooter({ palace, isCurrentDecade }: { palace: PalaceView; isCurrent
           color={isCurrentDecade ? c.onAccent : c.textSecondary}
           style={isCurrentDecade ? styles.decadeNow : undefined}
         >
-          {t.tf('charts_decade_start', palace.decadeStartAge)}
+          {t.tf("charts_decade_start", palace.decadeStartAge)}
         </OrtusText>
       </View>
     </View>
@@ -185,20 +258,27 @@ function CellFooter({ palace, isCurrentDecade }: { palace: PalaceView; isCurrent
 
 const styles = StyleSheet.create({
   // The board is a fixed chart, so it never mirrors.
-  board: { direction: 'ltr', gap: OrtusSpacing.hair },
-  row: { flexDirection: 'row', gap: OrtusSpacing.hair },
+  board: { direction: "ltr", gap: OrtusSpacing.hair },
+  row: { flexDirection: "row", gap: OrtusSpacing.hair },
   weighted: { flex: 1 },
-  full: { alignSelf: 'stretch' },
-  side: { flex: 1, gap: OrtusSpacing.hair },
+  full: { alignSelf: "stretch" },
+  side: { flexGrow: 1, flexShrink: 0, flexBasis: 0, gap: OrtusSpacing.hair },
+  // Two cells and the gap between them, like the rows above and below, whatever the text inside.
   centre: {
-    flex: CENTRE_SPAN,
+    flexGrow: CENTRE_SPAN,
+    flexShrink: 0,
+    flexBasis: OrtusSpacing.hair,
     height: OrtusSizes.palaceCellHeight * 2 + OrtusSpacing.hair,
     ...OrtusShapes.cell,
-    overflow: 'hidden',
+    overflow: "hidden",
     backgroundColor: c.insetContainer,
+  },
+  // Absolute, so the text never widens the centre column.
+  centreContent: {
+    ...StyleSheet.absoluteFill,
     padding: OrtusSpacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     direction: TEXT_DIRECTION,
   },
   cellFrame: { height: OrtusSizes.palaceCellHeight, ...OrtusShapes.cell },
@@ -211,15 +291,23 @@ const styles = StyleSheet.create({
     padding: OrtusSpacing.xxs,
     direction: TEXT_DIRECTION,
   },
-  stars: { flex: 1, overflow: 'hidden' },
-  starLine: { flexDirection: 'row', alignItems: 'center', gap: OrtusSpacing.hair },
+  stars: { flex: 1, overflow: "hidden" },
+  starLine: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: OrtusSpacing.hair,
+  },
   shrink: { flexShrink: 1 },
-  badge: { ...OrtusShapes.tag, overflow: 'hidden', paddingHorizontal: OrtusSpacing.hair },
-  footerRow: { flexDirection: 'row', alignItems: 'center' },
+  badge: {
+    ...OrtusShapes.tag,
+    overflow: "hidden",
+    paddingHorizontal: OrtusSpacing.hair,
+  },
+  footerRow: { flexDirection: "row", alignItems: "center" },
   flex: { flex: 1 },
   decadeNow: {
     ...OrtusShapes.tag,
-    overflow: 'hidden',
+    overflow: "hidden",
     backgroundColor: c.accent,
     paddingHorizontal: OrtusSpacing.hair,
   },
