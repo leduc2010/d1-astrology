@@ -8,5 +8,8 @@ Format: `R###` · severity · area — description. Kotlin bug IDs (B###) refer 
 - R003 · LOW · designsystem — Bottom sheet drags from the handle only; wheel picker uses ScrollView `snapToInterval` with an 80 ms settle grace instead of LazyColumn snap-fling.
 - R004 · LOW · designsystem — Tab icon tint cross-fades two glyphs instead of a colour tween; chips/segments expose role `tab`; tab bar hides on Keyboard events rather than IME insets.
 - R005 · INFO · build — `@react-native-masked-view/masked-view` is native: Expo Go has it, a dev client needs a rebuild.
+- R006 · LOW · core/data — Zone offsets come from `Intl` (Hermes ICU); old historical rules may differ from java.time tzdb on some devices. Vietnam North/South history is table-driven and matches Kotlin tests.
+- R007 · LOW · core/data — Birth clock keeps minutes only (seconds truncated), as Kotlin; AsyncStorage writes are per-key, not atomic across a whole profile.
+- R008 · INFO · core/data — Settings `clear()` keeps the chosen `app_language` (Android keeps per-app locale outside DataStore); AskUsage stores the local epoch day instead of an ISO string.
 
 ## Fixed
