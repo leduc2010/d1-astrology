@@ -1,10 +1,24 @@
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 
-import { festivalName, listText, lunarDateShortText, solarTermName, visibleFestivals, type UiText } from '@/core/ui';
-import { DateBadge, OrtusCard, OrtusListRow, OrtusSpacing, SectionLabel } from '@/designsystem';
-import { type CivilDate, type DayAlmanac, isoDate } from '@/engine';
-import { useT } from '@/i18n';
-import { datePattern, weekdayText } from './dateText';
+import {
+  datePattern,
+  festivalName,
+  listText,
+  lunarDateShortText,
+  solarTermName,
+  type UiText,
+  visibleFestivals,
+  weekdayText,
+} from "@/core/ui";
+import {
+  DateBadge,
+  OrtusCard,
+  OrtusListRow,
+  OrtusSpacing,
+  SectionLabel,
+} from "@/designsystem";
+import { type CivilDate, type DayAlmanac, isoDate } from "@/engine";
+import { useT } from "@/i18n";
 
 const MAX_UPCOMING = 4;
 
@@ -24,7 +38,7 @@ export function UpcomingList({ days, onOpenDay, style }: UpcomingListProps) {
   if (rows.length === 0) return null;
   return (
     <View style={[styles.column, style]}>
-      <SectionLabel text={t.tf('calendar_upcoming')} />
+      <SectionLabel text={t.tf("calendar_upcoming")} />
       <OrtusCard contentPadding={OrtusSpacing.none}>
         {rows.map(({ day, names }, i) => (
           <OrtusListRow
@@ -32,7 +46,10 @@ export function UpcomingList({ days, onOpenDay, style }: UpcomingListProps) {
             title={listText(t, names)}
             subtitle={`${weekdayText(day.date, t.language)} · ${lunarDateShortText(t, day.lunar)}`}
             leading={
-              <DateBadge day={String(day.date.day)} month={datePattern(t, 'date_month_short_pattern', day.date)} />
+              <DateBadge
+                day={String(day.date.day)}
+                month={datePattern(t, "date_month_short_pattern", day.date)}
+              />
             }
             showDivider={i < rows.length - 1}
             onPress={() => onOpenDay(day.date)}
@@ -45,8 +62,12 @@ export function UpcomingList({ days, onOpenDay, style }: UpcomingListProps) {
 
 /** Festivals the reader's language shows, then the solar term if one begins that day. */
 function eventNames(t: UiText, day: DayAlmanac): string[] {
-  const festivals = visibleFestivals(day.festivals, t.language).map((f) => festivalName(t, f));
-  return day.isTermStart ? [...festivals, solarTermName(t, day.solarTerm)] : festivals;
+  const festivals = visibleFestivals(day.festivals, t.language).map((f) =>
+    festivalName(t, f),
+  );
+  return day.isTermStart
+    ? [...festivals, solarTermName(t, day.solarTerm)]
+    : festivals;
 }
 
 const styles = StyleSheet.create({

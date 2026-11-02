@@ -1,9 +1,10 @@
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 
-import { AdPlacement } from '@/core/model';
+import { AdPlacement } from "@/core/model";
 import {
   capitalized,
+  datePattern,
   daySpiritText,
   festivalName,
   HoursSection,
@@ -15,7 +16,8 @@ import {
   SampleNativeAd,
   useResumedOnly,
   visibleFestivals,
-} from '@/core/ui';
+  weekdayText,
+} from "@/core/ui";
 import {
   OrtusCard,
   OrtusColors as c,
@@ -28,14 +30,13 @@ import {
   OrtusTopBar,
   TagTone,
   useReducedMotion,
-} from '@/designsystem';
-import { type CivilDate, isoDate } from '@/engine';
-import { useT } from '@/i18n';
-import { goBack } from '@/navigation/routes';
-import { datePattern, weekdayText } from './dateText';
-import type { DayUiState } from './dayModel';
-import { ClashCard, DayAdvice, DayFacts, PillarRow } from './DaySections';
-import { useDayModel } from './useDayModel';
+} from "@/designsystem";
+import { type CivilDate, isoDate } from "@/engine";
+import { useT } from "@/i18n";
+import { goBack } from "@/navigation/routes";
+import type { DayUiState } from "./dayModel";
+import { ClashCard, DayAdvice, DayFacts, PillarRow } from "./DaySections";
+import { useDayModel } from "./useDayModel";
 
 /** One day in full, opened from Today or the calendar; [start] null opens today. */
 export function DayScreen({ start }: { start: CivilDate | null }) {
@@ -58,7 +59,7 @@ export function DayContent({ state, onShift, onBack }: DayContentProps) {
         <OrtusTopBar
           title={weekdayText(state.day.date, t.language)}
           onBack={onBack}
-          backAccessibilityLabel={t.tf('day_back')}
+          backAccessibilityLabel={t.tf("day_back")}
         />
       }
     >
@@ -70,7 +71,10 @@ export function DayContent({ state, onShift, onBack }: DayContentProps) {
       </Reveal>
       <Reveal index={2}>
         <OrtusCard>
-          <HoursSection auspicious={state.day.auspiciousHours} now={state.nowHour} />
+          <HoursSection
+            auspicious={state.day.auspiciousHours}
+            now={state.nowHour}
+          />
         </OrtusCard>
       </Reveal>
       <Reveal index={3}>
@@ -93,10 +97,20 @@ export function DayContent({ state, onShift, onBack }: DayContentProps) {
 }
 
 /** Big solar date between day arrows, then the lunar date and the day spirit; fades in on each step. */
-function DayHero({ state, onShift, style }: { state: DayUiState; onShift: (days: number) => void; style?: StyleProp<ViewStyle> }) {
+function DayHero({
+  state,
+  onShift,
+  style,
+}: {
+  state: DayUiState;
+  onShift: (days: number) => void;
+  style?: StyleProp<ViewStyle>;
+}) {
   const t = useT();
   const reduced = useReducedMotion();
-  const entering = reduced ? undefined : FadeIn.duration(OrtusMotion.STANDARD).easing(OrtusMotion.settle);
+  const entering = reduced
+    ? undefined
+    : FadeIn.duration(OrtusMotion.STANDARD).easing(OrtusMotion.settle);
   const key = isoDate(state.day.date);
   return (
     <View style={[styles.hero, style]}>
@@ -104,7 +118,7 @@ function DayHero({ state, onShift, style }: { state: DayUiState; onShift: (days:
       <View style={styles.numberRow}>
         <OrtusIconButton
           icon={OrtusIcons.Back}
-          accessibilityLabel={t.tf('day_previous')}
+          accessibilityLabel={t.tf("day_previous")}
           onPress={() => onShift(-1)}
           tint={c.textSecondary}
           enabled={state.hasPrevious}
@@ -116,13 +130,17 @@ function DayHero({ state, onShift, style }: { state: DayUiState; onShift: (days:
         </Animated.View>
         <OrtusIconButton
           icon={OrtusIcons.ChevronRight}
-          accessibilityLabel={t.tf('day_next')}
+          accessibilityLabel={t.tf("day_next")}
           onPress={() => onShift(1)}
           tint={c.textSecondary}
           enabled={state.hasNext}
         />
       </View>
-      <Animated.View key={`t-${key}`} entering={entering} style={styles.heroText}>
+      <Animated.View
+        key={`t-${key}`}
+        entering={entering}
+        style={styles.heroText}
+      >
         <HeroText state={state} />
       </Animated.View>
     </View>
@@ -136,7 +154,10 @@ function HeroText({ state }: { state: DayUiState }) {
   return (
     <>
       <OrtusText variant="caption" color={c.textSecondary}>
-        {capitalized(datePattern(t, 'date_month_year_pattern', day.date), t.language)}
+        {capitalized(
+          datePattern(t, "date_month_year_pattern", day.date),
+          t.language,
+        )}
       </OrtusText>
       <OrtusText variant="h2" color={c.textPrimary} style={styles.center}>
         {lunarDateText(t, day.lunar)}
@@ -147,7 +168,11 @@ function HeroText({ state }: { state: DayUiState }) {
         style={styles.tag}
       />
       {festivals.length > 0 ? (
-        <OrtusText variant="captionStrong" color={c.accent} style={styles.center}>
+        <OrtusText
+          variant="captionStrong"
+          color={c.accent}
+          style={styles.center}
+        >
           {listText(
             t,
             festivals.map((f) => festivalName(t, f)),
@@ -159,9 +184,17 @@ function HeroText({ state }: { state: DayUiState }) {
 }
 
 const styles = StyleSheet.create({
-  hero: { alignItems: 'center' },
-  numberRow: { flexDirection: 'row', alignItems: 'center', gap: OrtusSpacing.lg },
-  heroText: { alignSelf: 'stretch', alignItems: 'center', gap: OrtusSpacing.xs },
-  center: { textAlign: 'center' },
-  tag: { alignSelf: 'center' },
+  hero: { alignItems: "center" },
+  numberRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: OrtusSpacing.lg,
+  },
+  heroText: {
+    alignSelf: "stretch",
+    alignItems: "center",
+    gap: OrtusSpacing.xs,
+  },
+  center: { textAlign: "center" },
+  tag: { alignSelf: "center" },
 });
