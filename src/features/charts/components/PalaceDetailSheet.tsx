@@ -86,7 +86,7 @@ function StarList({ palace }: { palace: PalaceView }) {
         const main = mainOf(mark);
         return (
           <StarRow
-            key={starName(t, mark.star)}
+            key={`${mark.star.kind}-${mark.star.star}`}
             mark={mark}
             dot={main === null ? c.textBody : elementColors(mainStarElement(main)).content}
             kind={main === null ? '' : t.tf('charts_palace_star_main', elementName(t, mainStarElement(main)))}
@@ -95,10 +95,10 @@ function StarList({ palace }: { palace: PalaceView }) {
         );
       })}
       {palace.luckyStars.map((mark) => (
-        <StarRow key={starName(t, mark.star)} mark={mark} dot={c.chart.luckyStar} kind={t.tf('charts_palace_star_lucky')} />
+        <StarRow key={`${mark.star.kind}-${mark.star.star}`} mark={mark} dot={c.chart.luckyStar} kind={t.tf('charts_palace_star_lucky')} />
       ))}
       {palace.maleficStars.map((mark) => (
-        <StarRow key={starName(t, mark.star)} mark={mark} dot={c.chart.maleficStar} kind={t.tf('charts_palace_star_malefic')} />
+        <StarRow key={`${mark.star.kind}-${mark.star.star}`} mark={mark} dot={c.chart.maleficStar} kind={t.tf('charts_palace_star_malefic')} />
       ))}
       {all.every((mark) => mark.transformation === null) ? (
         <OrtusText variant="footnote" color={c.textMuted}>

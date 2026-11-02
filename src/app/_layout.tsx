@@ -23,6 +23,7 @@ import { AdPlacementsProvider, PremiumOfferedProvider } from '@/core/ui';
 import { DesignSystemProvider, StarfieldBackground, useOrtusFonts, useReducedMotion } from '@/designsystem';
 import {
   applyLayoutDirection,
+  getAppLanguageOverride,
   getDeviceLanguage,
   isSupportedLanguage,
   type LanguageCode,
@@ -66,9 +67,11 @@ function AppRoot() {
   const chosen = settings?.language ?? null;
   const language = chosen !== null && isSupportedLanguage(chosen) ? chosen : null;
   const loaded = settings !== undefined;
+  // Runs during render on purpose, but only when the choice differs from the one i18n last
+  // applied, so a repeated render (StrictMode, the same settings again) changes nothing.
+  if (loaded && getAppLanguageOverride() !== language) void setAppLanguage(language);
   const directionChanged = useMemo(() => {
     if (!loaded) return false;
-    void setAppLanguage(language);
     return applyLayoutDirection(language ?? getDeviceLanguage());
   }, [loaded, language]);
 

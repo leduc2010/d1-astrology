@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { OrtusScreen, useOpenLink } from '@/core/ui';
+import { OrtusScreen, useOpenLink, useResumedOnly } from '@/core/ui';
 import {
   ButtonSize,
   ButtonStyle,
@@ -37,6 +37,7 @@ export function SupportScreen() {
   const { tf } = useT();
   const insets = useSafeAreaInsets();
   const openLink = useOpenLink();
+  const back = useResumedOnly(goBack);
   const [support] = useState(() => supportLinesFor(supportCountry()));
   // Opens the dialler with the number filled in; nothing is placed. No dialler: the number stays on screen.
   const use = (line: SupportLine) => openLink(line.kind === 'phone' ? `tel:${dialDigits(line.number)}` : line.url);
@@ -57,7 +58,7 @@ export function SupportScreen() {
       <OrtusText variant="callout" color={c.textSecondary}>
         {tf(support.danger)}
       </OrtusText>
-      <OrtusWideButton text={tf('ai_support_back')} onPress={goBack} variant={ButtonStyle.Outline} />
+      <OrtusWideButton text={tf('ai_support_back')} onPress={back} variant={ButtonStyle.Outline} />
     </OrtusScreen>
   );
 }

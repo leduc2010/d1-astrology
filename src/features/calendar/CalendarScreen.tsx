@@ -1,7 +1,9 @@
 import {
   type ReactNode,
   useCallback,
+  useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -9,6 +11,7 @@ import {
   FlatList,
   type FlatListProps,
   type LayoutChangeEvent,
+  type ListRenderItemInfo,
   StyleSheet,
   View,
 } from "react-native";
@@ -88,6 +91,10 @@ export function CalendarContent({
   const [current, setCurrent] = useState(state.todayIndex);
   const [width, setWidth] = useState(0);
   const month = MonthIndex.month(current);
+  const shown = useRef(current);
+  useLayoutEffect(() => {
+    shown.current = current;
+  });
 
   const latestShown = useRef(onMonthShown);
   useLayoutEffect(() => {
@@ -115,6 +122,38 @@ export function CalendarContent({
       index,
     }),
     [width],
+  );
+
+  // A new width (rotation, split screen) keeps the old scroll offset: snap back onto the shown month.
+  const laidOutWidth = useRef(0);
+  useEffect(() => {
+    const previous = laidOutWidth.current;
+    laidOutWidth.current = width;
+    if (previous === 0 || width === 0 || previous === width) return;
+    pager.current?.scrollToIndex({ index: shown.current, animated: false });
+  }, [width]);
+
+  // All a page reads besides its index; pages are kept per index, so a memoised grid only redraws
+  // when its own month, the lunar setting or the width changes.
+  const pageProps = useMemo(
+    () => ({
+      pages: state.pages,
+      showLunar: state.showLunar,
+      onOpenDay,
+      style: { width },
+    }),
+    [state.pages, state.showLunar, onOpenDay, width],
+  );
+  const renderItem = useCallback(
+    ({ item }: ListRenderItemInfo<number>) => (
+      <MonthGrid
+        page={pageProps.pages[item]}
+        showLunar={pageProps.showLunar}
+        onOpenDay={pageProps.onOpenDay}
+        style={pageProps.style}
+      />
+    ),
+    [pageProps],
   );
 
   return (
@@ -152,20 +191,13 @@ export function CalendarContent({
                 showsHorizontalScrollIndicator={false}
                 initialScrollIndex={state.todayIndex}
                 getItemLayout={getItemLayout}
-                extraData={state}
+                extraData={pageProps}
                 windowSize={PAGER_WINDOW}
                 initialNumToRender={1}
                 maxToRenderPerBatch={1}
                 viewabilityConfig={VIEWABILITY}
                 onViewableItemsChanged={onViewable}
-                renderItem={({ item }) => (
-                  <MonthGrid
-                    page={state.pages[item]}
-                    showLunar={state.showLunar}
-                    onOpenDay={onOpenDay}
-                    style={{ width }}
-                  />
-                )}
+                renderItem={renderItem}
               />
             ) : null}
           </View>

@@ -1,4 +1,4 @@
-import { Reveal, StrengthCard } from '@/core/ui';
+import { Reveal, StrengthCard, useResumedOnly } from '@/core/ui';
 import { useT } from '@/i18n';
 import { goBack } from '@/navigation/routes';
 
@@ -11,7 +11,8 @@ import { useChartsModel } from './model/useChartsModel';
 /** The Bát Tự route, wired to its own charts model. */
 export function BaZiScreen() {
   const { state } = useChartsModel();
-  return <BaZiContent state={state} onBack={goBack} />;
+  const back = useResumedOnly(goBack);
+  return <BaZiContent state={state} onBack={back} />;
 }
 
 /** Bát Tự page: the four-pillar table, the five-element balance, day master strength and the luck pillars. */

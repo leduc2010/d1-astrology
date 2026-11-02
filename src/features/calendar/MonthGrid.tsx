@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 
 import { WeekStart } from "@/core/model";
@@ -77,8 +77,11 @@ export type MonthGridProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-/** Six weeks of day cells; an unloaded month keeps the same height so the pager never jumps. */
-export function MonthGrid({
+/**
+ * Six weeks of day cells; an unloaded month keeps the same height so the pager never jumps.
+ * Memoised: pages and cells keep their identity, so swiping only draws the month that changed.
+ */
+export const MonthGrid = memo(function MonthGrid({
   page,
   showLunar,
   onOpenDay,
@@ -104,9 +107,9 @@ export function MonthGrid({
       ))}
     </View>
   );
-}
+});
 
-function DayCell({
+const DayCell = memo(function DayCell({
   cell,
   showLunar,
   onOpenDay,
@@ -158,7 +161,7 @@ function DayCell({
       </OrtusPressable>
     </View>
   );
-}
+});
 
 /** Gold for a festival or a new solar term, green for a Hoàng đạo day. */
 function dotColor(

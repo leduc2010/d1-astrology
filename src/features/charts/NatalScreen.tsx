@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Reveal } from '@/core/ui';
+import { Reveal, useResumedOnly } from '@/core/ui';
 import { OrtusColors as c, OrtusCard, OrtusText } from '@/designsystem';
 import type { Planet } from '@/engine';
 import { useT } from '@/i18n';
@@ -17,7 +17,8 @@ import { useChartsModel } from './model/useChartsModel';
 /** The natal chart route, wired to its own charts model. */
 export function NatalScreen() {
   const { state } = useChartsModel();
-  return <NatalContent state={state} onBack={goBack} />;
+  const back = useResumedOnly(goBack);
+  return <NatalContent state={state} onBack={back} />;
 }
 
 /** Natal chart page: the wheel, the big three, planets with houses, aspects and the element balance. */

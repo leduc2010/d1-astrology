@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Reveal } from '@/core/ui';
+import { Reveal, useResumedOnly } from '@/core/ui';
 import type { Branch } from '@/engine';
 import { useT } from '@/i18n';
 import { goBack } from '@/navigation/routes';
@@ -16,7 +16,8 @@ import { useChartsModel } from './model/useChartsModel';
 /** The Tử Vi route, wired to its own charts model. */
 export function ZiWeiScreen() {
   const { state, onSelectPalace } = useChartsModel();
-  return <ZiWeiContent state={state} onSelectPalace={onSelectPalace} onBack={goBack} />;
+  const back = useResumedOnly(goBack);
+  return <ZiWeiContent state={state} onSelectPalace={onSelectPalace} onBack={back} />;
 }
 
 export type ZiWeiContentProps = {

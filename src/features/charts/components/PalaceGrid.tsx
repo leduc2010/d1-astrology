@@ -111,16 +111,16 @@ function PalaceCell({ palace, isCurrentDecade, link, onPress, style }: PalaceCel
           </OrtusText>
           {palace.mainStars.map((mark) => (
             <StarLine
-              key={starName(t, mark.star)}
+              key={`${mark.star.kind}-${mark.star.star}`}
               mark={mark}
               color={mark.star.kind === 'main' ? elementColors(mainStarElement(mark.star.star)).content : c.textBody}
             />
           ))}
           {palace.luckyStars.map((mark) => (
-            <StarLine key={starName(t, mark.star)} mark={mark} color={c.chart.luckyStar} />
+            <StarLine key={`${mark.star.kind}-${mark.star.star}`} mark={mark} color={c.chart.luckyStar} />
           ))}
           {palace.maleficStars.map((mark) => (
-            <StarLine key={starName(t, mark.star)} mark={mark} color={c.chart.maleficStar} />
+            <StarLine key={`${mark.star.kind}-${mark.star.star}`} mark={mark} color={c.chart.maleficStar} />
           ))}
         </View>
         <CellFooter palace={palace} isCurrentDecade={isCurrentDecade} />

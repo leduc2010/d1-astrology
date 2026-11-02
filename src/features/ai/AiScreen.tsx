@@ -109,9 +109,11 @@ function Conversation({ state, model }: { state: AiReady; model: AiModel }) {
   const empty = state.messages.length === 0;
   const sourcesAnswer = state.messages.find((m) => m.id === sourcesFor && m.kind === 'answer');
 
-  const send = () => {
-    if (model.onAsk(draft)) setDraft('');
+  // A question goes out the same way from the composer or a prompt card: an accepted one clears the draft.
+  const ask = (question: string) => {
+    if (model.onAsk(question)) setDraft('');
   };
+  const send = () => ask(draft);
 
   return (
     <>
@@ -123,7 +125,7 @@ function Conversation({ state, model }: { state: AiReady; model: AiModel }) {
         onContentSizeChange={() => scroll.current?.scrollToEnd({ animated: !reducedMotion })}
       >
         {empty ? (
-          <AiIntro quota={state.quota} onAsk={(question) => model.onAsk(question)} />
+          <AiIntro quota={state.quota} onAsk={ask} />
         ) : (
           state.messages.map((message) => (
             <ChatLine key={message.id} message={message} onViewSources={() => setSourcesFor(message.id)} />

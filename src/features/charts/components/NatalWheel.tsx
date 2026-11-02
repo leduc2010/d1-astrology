@@ -34,6 +34,12 @@ export function NatalWheel({ chart, description, ascendantLabel }: NatalWheelPro
   const [size, setSize] = useState(0);
   const progress = useSharedValue(reduced ? 1 : 0);
   useEffect(() => {
+    // Start again from the turned-away pose so a new chart draws in too; reduced motion just shows it.
+    if (reduced) {
+      progress.set(1);
+      return;
+    }
+    progress.set(0);
     progress.set(withTiming(1, OrtusMotion.ceremonial(reduced)));
     // Replays only for a new chart, like Kotlin LaunchedEffect(chart).
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -20,6 +20,27 @@ const A_SUNDAY = 7;
 
 export type DateStyle = "long" | "medium";
 
+/**
+ * Formatters by language and options. Building an `Intl.DateTimeFormat` is slow on Hermes and a
+ * calendar month formats dozens of dates, so each shape is built once. Options always carry the
+ * UTC time zone, so it is left out of the key.
+ */
+const formatters = new Map<string, Intl.DateTimeFormat>();
+
+/** The shared formatter for [language] and [options], in UTC. */
+export function dateFormat(
+  language: string,
+  options: Intl.DateTimeFormatOptions,
+): Intl.DateTimeFormat {
+  const key = `${language}|${JSON.stringify(options)}`;
+  let format = formatters.get(key);
+  if (!format) {
+    format = new Intl.DateTimeFormat(language, { ...options, timeZone: UTC });
+    formatters.set(key, format);
+  }
+  return format;
+}
+
 /** The civil date of a stored epoch day (days since 1970-01-01). */
 export const civilDateOfEpochDay = (epochDay: number): CivilDate =>
   toCivil(epochDay + EPOCH_JDN);
@@ -30,26 +51,17 @@ export function solarDateText(
   language: string,
   style: DateStyle = "long",
 ): string {
-  return new Intl.DateTimeFormat(language, {
-    dateStyle: style,
-    timeZone: UTC,
-  }).format(utcDate(date));
+  return dateFormat(language, { dateStyle: style }).format(utcDate(date));
 }
 
 /** "Sunday, 1 November 2026" (Java `FormatStyle.FULL`). */
 export const fullDateText = (date: CivilDate, language: string): string =>
-  new Intl.DateTimeFormat(language, {
-    dateStyle: "full",
-    timeZone: UTC,
-  }).format(utcDate(date));
+  dateFormat(language, { dateStyle: "full" }).format(utcDate(date));
 
 /** "Sunday", first letter capitalised. */
 export const weekdayText = (date: CivilDate, language: string): string =>
   capitalized(
-    new Intl.DateTimeFormat(language, {
-      weekday: "long",
-      timeZone: UTC,
-    }).format(utcDate(date)),
+    dateFormat(language, { weekday: "long" }).format(utcDate(date)),
     language,
   );
 
@@ -58,10 +70,7 @@ export function weekdayHeadings(
   order: readonly number[],
   language: string,
 ): string[] {
-  const format = new Intl.DateTimeFormat(language, {
-    weekday: "short",
-    timeZone: UTC,
-  });
+  const format = dateFormat(language, { weekday: "short" });
   return order.map((weekday) =>
     format.format(
       utcDate({ year: ANY_YEAR, month: 1, day: A_SUNDAY + weekday }),
@@ -193,10 +202,7 @@ function partOf(
   options: Intl.DateTimeFormatOptions,
   type: Intl.DateTimeFormatPartTypes,
 ): string {
-  const parts = new Intl.DateTimeFormat(language, {
-    ...options,
-    timeZone: UTC,
-  }).formatToParts(utcDate(date));
+  const parts = dateFormat(language, options).formatToParts(utcDate(date));
   return parts.find((p) => p.type === type)?.value ?? "";
 }
 
