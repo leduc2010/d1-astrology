@@ -49,7 +49,7 @@ Rules for every phase: `npm run typecheck`, `npm run lint`, `npm test` green →
 - [x] Locale key/placeholder check (`src/i18n/__tests__/locales.test.ts`, mirrors Kotlin `check_locales.py`), RTL for Arabic (`applyLayoutDirection` + one reload on switching direction)
 
 ## P8 — Verification
-- [ ] Walk every tab on the Android emulator; fix what it shows; final review
+- [x] Walk every tab on the Android emulator (Expo Go); fix what it shows; final review (025a44c, 314e4f7, b8fffd1, 93db914)
 
 ## Log
 - 2026-11-02 — Repo created at `D:\DLAB\ortus-destiny-rn` (own git repo, per user request; not inside d1-astrology). Expo SDK 58, RN 0.88, React 19.3, TS 6.
@@ -57,3 +57,4 @@ Rules for every phase: `npm run typecheck`, `npm run lint`, `npm test` green →
 - 2026-11-03 — P0: design system (tokens checked against Kotlin `Dimens.kt`/`Color.kt` fixture, starfield via ported Kotlin `Random(seed)`), sound (`SoundPlayer`, 6 WAV cues), i18n (14 locales converted from `strings.xml`), route helpers. Flat route graph like Kotlin: tabs under `(tabs)`, child screens on the root stack.
 - 2026-11-03 — Core: `src/core/model`, `core/data` (repositories, resolved birth, places, billing/ads stubs, eraser; 41 Kotlin tests ported), `core/reading`, `core/telemetry`, `core/ui` (text helpers, birth wheels, shared bits). App shell: splash hold, language, onboarding gate, consent, screen views by route name, ad placements (Free only), Premium offered (`EXPO_PUBLIC_PREMIUM_ENABLED`, off by default).
 - 2026-11-03 — Features P2–P6 ported by parallel agents, each with every Kotlin feature test (onboarding 17, today/calendar 23, charts 8, AI, readings/match 31, me/premium 35); full suite 66 suites / 568 tests green. Shared bits moved into core/ui (date text, screen model, app links); `FadingScrollView` forwards its ref. Parity gaps R009–R016 in `docs/BUGS.md`. Next: review pass, then P8 emulator walk.
+- 2026-11-03 — P8: walked every tab and child screen on the Android emulator in Expo Go with made-up birth data (onboarding, Today, Day detail, Calendar, Charts hub, Tử Vi, Bát Tự, Natal, Ask AI, Readings, My trio, Match add/result/remove, Me, Profiles, edit birth, Privacy + erase sheet, language sheet with 14 locales, Vietnamese and Arabic strings). Fixed: sheets under the status bar and tall sheet scrolling, `withAlpha` crash on rgba tokens (Natal), palace grid uneven widths and stale borders, link buttons stretching. Full suite 68 suites / 576 tests green. Remaining gaps R018–R025 in `docs/BUGS.md`. All phases done.
