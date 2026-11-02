@@ -13,5 +13,7 @@ Format: `R###` · severity · area — description. Kotlin bug IDs (B###) refer 
 - R008 · INFO · core/data — Settings `clear()` keeps the chosen `app_language` (Android keeps per-app locale outside DataStore); AskUsage stores the local epoch day instead of an ISO string.
 - R009 · LOW · ai — Support opens as the `/ai-support` stack screen (Kotlin cross-fades inside the tab). Support country comes from the `expo-localization` region only (Kotlin: network → SIM → system region).
 - R010 · LOW · ai — Rewarded-ad offer is gated by the `ai_rewarded` placement (none for Premium); readings for the chat are computed on the JS thread; usage save errors are swallowed (Kotlin: IOException only). Chat uses a plain ScrollView (FadingScrollView takes no ref) for scroll-to-end. `aiModel.ts` is 326 lines.
+- R011 · LOW · calendar — Month pager is a paging FlatList (current = page >51% visible); month pages and the 60-day upcoming list are built on the JS thread; the day hero only fades in (no cross-fade out). Dates and weekday names use `Intl`, so a few locales may word them slightly differently from `java.time`; the date-pattern test checks pattern letters instead of parsing with Java.
+- R012 · LOW · today/calendar — `fullDateText` is duplicated in `features/today` and `features/calendar`; move the date text helpers into `core/ui/dateText.ts`.
 
 ## Fixed
