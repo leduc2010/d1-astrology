@@ -1,48 +1,83 @@
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 
-import { UiCue } from '../feedback/UiFeedback';
-import type { OrtusIconComponent } from '../icons/OrtusIcons';
-import { glowStyle } from '../modifiers/glow';
-import { OrtusPressable } from '../modifiers/OrtusPressable';
-import { OrtusAlpha } from '../theme/alpha';
-import { OrtusColors as c } from '../theme/colors';
-import { OrtusGlow, OrtusSizes, OrtusSpacing, OrtusStroke } from '../theme/dimens';
-import { OrtusGradients } from '../theme/gradients';
-import { TRANSPARENT } from '../theme/palette';
-import { OrtusRadii } from '../theme/shapes';
-import type { OrtusTypeVariant } from '../theme/typography';
-import { OrtusText } from './OrtusText';
+import { UiCue } from "../feedback/UiFeedback";
+import type { OrtusIconComponent } from "../icons/OrtusIcons";
+import { glowStyle } from "../modifiers/glow";
+import { OrtusPressable } from "../modifiers/OrtusPressable";
+import { OrtusAlpha } from "../theme/alpha";
+import { OrtusColors as c } from "../theme/colors";
+import {
+  OrtusGlow,
+  OrtusSizes,
+  OrtusSpacing,
+  OrtusStroke,
+} from "../theme/dimens";
+import { OrtusGradients } from "../theme/gradients";
+import { TRANSPARENT } from "../theme/palette";
+import { OrtusRadii } from "../theme/shapes";
+import type { OrtusTypeVariant } from "../theme/typography";
+import { OrtusText } from "./OrtusText";
 
 /** Figma C01 variants. Calm/CalmSoft: support screen only (quiet jade). */
 export const ButtonStyle = {
-  Primary: 'Primary',
-  Outline: 'Outline',
-  Secondary: 'Secondary',
-  Calm: 'Calm',
-  CalmSoft: 'CalmSoft',
+  Primary: "Primary",
+  Outline: "Outline",
+  Secondary: "Secondary",
+  Calm: "Calm",
+  CalmSoft: "CalmSoft",
 } as const;
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- enum-like const + type
 export type ButtonStyle = (typeof ButtonStyle)[keyof typeof ButtonStyle];
 
-export const ButtonSize = { Regular: 'Regular', Small: 'Small' } as const;
+export const ButtonSize = { Regular: "Regular", Small: "Small" } as const;
 // eslint-disable-next-line @typescript-eslint/no-redeclare -- enum-like const + type
 export type ButtonSize = (typeof ButtonSize)[keyof typeof ButtonSize];
 
-type ButtonColors = { background: ViewStyle; content: string; border: string; glow: string };
+type ButtonColors = {
+  background: ViewStyle;
+  content: string;
+  border: string;
+  glow: string;
+};
 
 function buttonColors(variant: ButtonStyle, enabled: boolean): ButtonColors {
   if (!enabled) {
-    return { background: { backgroundColor: c.disabledContainer }, content: c.textMuted, border: TRANSPARENT, glow: TRANSPARENT };
+    return {
+      background: { backgroundColor: c.disabledContainer },
+      content: c.textMuted,
+      border: TRANSPARENT,
+      glow: TRANSPARENT,
+    };
   }
   switch (variant) {
     case ButtonStyle.Primary:
-      return { background: { backgroundImage: OrtusGradients.gold }, content: c.onAccent, border: TRANSPARENT, glow: c.accentGlow };
+      return {
+        background: { backgroundImage: OrtusGradients.gold },
+        content: c.onAccent,
+        border: TRANSPARENT,
+        glow: c.accentGlow,
+      };
     case ButtonStyle.Outline:
-      return { background: {}, content: c.accentLight, border: c.outlineStrong, glow: TRANSPARENT };
+      return {
+        background: {},
+        content: c.accentLight,
+        border: c.outlineStrong,
+        glow: TRANSPARENT,
+      };
     case ButtonStyle.Secondary:
-      return { background: { backgroundColor: c.surfaceRaised }, content: c.textPrimary, border: TRANSPARENT, glow: TRANSPARENT };
+      return {
+        background: { backgroundColor: c.surfaceRaised },
+        content: c.textPrimary,
+        border: TRANSPARENT,
+        glow: TRANSPARENT,
+      };
     case ButtonStyle.Calm:
-      return { background: { backgroundColor: c.calm.container }, content: c.calm.content, border: TRANSPARENT, glow: TRANSPARENT };
+      return {
+        background: { backgroundColor: c.calm.container },
+        content: c.calm.content,
+        border: TRANSPARENT,
+        glow: TRANSPARENT,
+      };
     case ButtonStyle.CalmSoft:
       return {
         background: { backgroundColor: c.calmSoft.container },
@@ -85,7 +120,10 @@ export function OrtusButton({
   testID,
 }: OrtusButtonProps) {
   const colors = buttonColors(variant, enabled);
-  const height = size === ButtonSize.Small ? OrtusSizes.buttonHeightSmall : OrtusSizes.buttonHeight;
+  const height =
+    size === ButtonSize.Small
+      ? OrtusSizes.buttonHeightSmall
+      : OrtusSizes.buttonHeight;
   const hasBorder = colors.border !== TRANSPARENT;
   return (
     <OrtusPressable
@@ -98,26 +136,40 @@ export function OrtusButton({
       outerStyle={[
         styles.outer,
         { height },
-        colors.glow !== TRANSPARENT && glowStyle(colors.glow, OrtusGlow.button, OrtusGlow.buttonOffsetY),
+        colors.glow !== TRANSPARENT &&
+          glowStyle(colors.glow, OrtusGlow.button, OrtusGlow.buttonOffsetY),
         style,
       ]}
-      style={[styles.box, colors.background, hasBorder && { borderWidth: OrtusStroke.hairline, borderColor: colors.border }]}
+      style={[
+        styles.box,
+        colors.background,
+        hasBorder && {
+          borderWidth: OrtusStroke.hairline,
+          borderColor: colors.border,
+        },
+      ]}
     >
       <ButtonContent
         text={text}
         icon={leadingIcon}
         color={colors.content}
-        variant={size === ButtonSize.Small ? 'buttonSmall' : 'button'}
+        variant={size === ButtonSize.Small ? "buttonSmall" : "button"}
       />
     </OrtusPressable>
   );
 }
 
-export type OrtusWideButtonProps = Omit<OrtusButtonProps, 'size'>;
+export type OrtusWideButtonProps = Omit<OrtusButtonProps, "size">;
 
 /** Full-width convenience used by forms and sheets. */
 export function OrtusWideButton({ style, ...rest }: OrtusWideButtonProps) {
-  return <OrtusButton {...rest} size={ButtonSize.Regular} style={[styles.wide, style]} />;
+  return (
+    <OrtusButton
+      {...rest}
+      size={ButtonSize.Regular}
+      style={[styles.wide, style]}
+    />
+  );
 }
 
 export type OrtusLinkButtonProps = {
@@ -131,7 +183,14 @@ export type OrtusLinkButtonProps = {
 };
 
 /** C01 link: text only. */
-export function OrtusLinkButton({ text, onPress, color = c.accent, trailingIcon: Trailing, style, accessibilityLabel }: OrtusLinkButtonProps) {
+export function OrtusLinkButton({
+  text,
+  onPress,
+  color = c.accent,
+  trailingIcon: Trailing,
+  style,
+  accessibilityLabel,
+}: OrtusLinkButtonProps) {
   return (
     <OrtusPressable
       onPress={onPress}
@@ -142,7 +201,13 @@ export function OrtusLinkButton({ text, onPress, color = c.accent, trailingIcon:
       <OrtusText variant="link" color={color}>
         {text}
       </OrtusText>
-      {Trailing ? <Trailing size={OrtusSizes.iconSmall} color={color} style={styles.linkIcon} /> : null}
+      {Trailing ? (
+        <Trailing
+          size={OrtusSizes.iconSmall}
+          color={color}
+          style={styles.linkIcon}
+        />
+      ) : null}
     </OrtusPressable>
   );
 }
@@ -209,32 +274,47 @@ function ButtonContent({
 
 const styles = StyleSheet.create({
   // Hugs its content at the start like a Compose Box; OrtusWideButton stretches.
-  outer: { alignSelf: 'flex-start', minWidth: OrtusSizes.buttonMinWidth, borderRadius: OrtusRadii.pill },
+  outer: {
+    alignSelf: "flex-start",
+    minWidth: OrtusSizes.buttonMinWidth,
+    borderRadius: OrtusRadii.pill,
+  },
   box: {
     flex: 1,
     borderRadius: OrtusRadii.pill,
     paddingHorizontal: OrtusSpacing.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
-  wide: { alignSelf: 'stretch' },
-  content: { flexDirection: 'row', alignItems: 'center', gap: OrtusSpacing.xs },
-  linkOuter: { alignSelf: 'flex-start', borderRadius: OrtusRadii.pill },
+  wide: { alignSelf: "stretch" },
+  content: { flexDirection: "row", alignItems: "center", gap: OrtusSpacing.xs },
+  linkOuter: { alignSelf: "flex-start", borderRadius: OrtusRadii.pill },
+  // A link hugs its text: without this the pressable's fill-the-box grow can stretch it down a whole card.
   link: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexGrow: 0,
+    flexDirection: "row",
+    alignItems: "center",
     borderRadius: OrtusRadii.pill,
     padding: OrtusSpacing.xs,
   },
   linkIcon: { marginStart: OrtusSpacing.xxs },
-  iconTouch: { minWidth: OrtusSizes.minTouch, minHeight: OrtusSizes.minTouch, alignItems: 'center', justifyContent: 'center' },
+  iconTouch: {
+    minWidth: OrtusSizes.minTouch,
+    minHeight: OrtusSizes.minTouch,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   dimmed: { opacity: OrtusAlpha.DIMMED },
-  iconOuter: { width: OrtusSizes.headerButton, height: OrtusSizes.headerButton, borderRadius: OrtusRadii.pill },
+  iconOuter: {
+    width: OrtusSizes.headerButton,
+    height: OrtusSizes.headerButton,
+    borderRadius: OrtusRadii.pill,
+  },
   iconBox: {
     flex: 1,
     borderRadius: OrtusRadii.pill,
     backgroundColor: c.iconButtonContainer,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
