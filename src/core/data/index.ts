@@ -1,6 +1,15 @@
 // Public surface of core/data: storage-backed repositories, billing and ads seams, birth resolving.
 export { StubRewardedAds, type RewardedAds } from './ads/rewardedAds';
 export {
+  AskAiError,
+  askAiFromEnv,
+  HttpAskAi,
+  type AskAi,
+  type AskAiFailure,
+  type AskAiRequest,
+  type AskAiTurn,
+} from './ai/askAi';
+export {
   ASK_USAGE_FILE,
   askUsage,
   createAskUsageRepository,

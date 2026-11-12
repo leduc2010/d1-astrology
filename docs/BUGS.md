@@ -28,7 +28,12 @@ Format: `R###` · severity · area — description. Kotlin bug IDs (B###) refer 
 - R024 · INFO · testing — Most screens have no render smoke test (only NatalArt and the model tests); add a smoke render per screen so crashes like the `withAlpha` one fail in Jest.
 - R025 · INFO · dev build — Taps lag and fast `adb` swipes do not scroll or page in the Expo Go dev build; slow swipes from mid-list work. Child-screen bottom inset matches Kotlin.
 
+- R030 · MEDIUM · ai/privacy — Ask AI now answers online through `server/ai-proxy` (Google Gemini `gemini-3.1-flash-lite` by default; use a billed key, the free tier lets Google use prompts). Still to do before release: privacy policy naming Google as the AI processor; `onboarding_consent_privacy_body` still says the app "works offline"; `APP_KEY` is not real client attestation (add Play Integrity / App Attest); daily allowance is counted on the device only; set a provider spending cap.
+- R031 · LOW · ai — Online replies are plain text (no source chips or "View sources" like offline answers); the model is told to name the systems it draws on. The suggestion cards and `ai_intro_body` were written for the offline answers.
+- R032 · INFO · build — `allowBackup="true"` in the generated Android manifest contradicts `onboarding_consent_privacy_body` ("left out of cloud backups"); set `android.allowBackup: false` (or backup rules) in `app.json`.
+
 ## Fixed
+- R033 · fixed (uncommitted) · designsystem — Birth wheels did not turn on Android when the page around them could scroll (Add person form; any date step on a small screen or large font): the page took the vertical drag. `OrtusWheelPicker` now sets `nestedScrollEnabled`.
 - R012 · fixed 35c7e2e · today/calendar — `fullDateText` was duplicated in `features/today` and `features/calendar`; move the date text helpers into `core/ui/dateText.ts`.
 - R026 · fixed 025a44c · designsystem — Bottom sheets drew under the status bar and tall sheets (language) clipped instead of scrolling.
 - R027 · fixed 314e4f7 · designsystem — `withAlpha` threw on `rgba()` tokens, crashing the Natal screen; now replaces the alpha like Compose `copy(alpha)`.

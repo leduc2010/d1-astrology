@@ -51,6 +51,9 @@ Rules for every phase: `npm run typecheck`, `npm run lint`, `npm test` green →
 ## P8 — Verification
 - [x] Walk every tab on the Android emulator (Expo Go); fix what it shows; final review (025a44c, 314e4f7, b8fffd1, 93db914)
 
+## P9 — Online Ask AI (RN-only)
+- [~] Cloudflare Worker proxy `server/ai-proxy` (OpenAI-compatible provider, Gemini by default, house-rules prompt, streaming, per-IP limit); app client `core/data/ai/askAi.ts` (expo/fetch streaming), chart summary without birth details, consent sheet + Privacy switch, refunds when nothing comes back. Offline answers stay when the build has no proxy URL. Open items: R030–R031.
+
 ## Log
 - 2026-11-02 — Repo created at `D:\DLAB\ortus-destiny-rn` (own git repo, per user request; not inside d1-astrology). Expo SDK 58, RN 0.88, React 19.3, TS 6.
 - 2026-11-03 — P1 engine ported to `src/engine/` (pure TS, 25 modules, barrel `index.ts`); all 11 Kotlin engine test classes ported (93 tests) incl. Swiss Ephemeris tolerances. Rename: natal `elementBalance` → `zodiacElementBalance` (clashed with BaZi `elementBalance` in the barrel).

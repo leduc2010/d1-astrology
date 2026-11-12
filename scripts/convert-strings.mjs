@@ -256,6 +256,23 @@ function collect(androidRoot) {
   return byLocale;
 }
 
+/**
+ * RN-only strings (features the Kotlin app does not have, e.g. the real Ask AI consent) live in
+ * src/i18n/rn-strings.json as { locale: { name: text } } and are merged in as plain <string>s.
+ */
+function mergeRnStrings(byLocale) {
+  const file = join(RN_ROOT, 'src', 'i18n', 'rn-strings.json');
+  if (!existsSync(file)) return;
+  const extra = JSON.parse(readFileSync(file, 'utf8'));
+  for (const [locale, strings] of Object.entries(extra)) {
+    if (!byLocale[locale]) throw new Error(`rn-strings.json: locale ${locale} is not in LOCALES`);
+    for (const [name, value] of Object.entries(strings)) {
+      if (byLocale[locale].has(name)) throw new Error(`rn-strings.json: ${locale}/${name} already exists in the Android resources`);
+      byLocale[locale].set(name, { name, kind: 'string', value, translatable: true, origin: 'rn-strings.json' });
+    }
+  }
+}
+
 // ---------------------------------------------------------------- output
 
 function flatten(entries, locale, defaults, notes) {
@@ -307,6 +324,7 @@ function main() {
   const androidRoot = resolve(process.argv[2] ?? process.env.ORTUS_ANDROID_ROOT ?? DEFAULT_ANDROID_ROOT);
   if (!existsSync(androidRoot)) throw new Error(`Android root not found: ${androidRoot}`);
   const byLocale = collect(androidRoot);
+  mergeRnStrings(byLocale);
   const defaults = byLocale.en;
   const notes = [];
   const outDir = resolve(process.argv[3] ?? DEFAULT_OUT_DIR);

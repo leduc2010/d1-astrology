@@ -34,6 +34,14 @@ export function spend(q: AiQuota): AiQuota {
   return freeLeft(q) > 0 ? { ...q, freeUsed: q.freeUsed + 1 } : { ...q, adCredits: q.adCredits - 1 };
 }
 
+/** Where [spend] would take the next question from. */
+export const spendSource = (q: AiQuota): 'free' | 'ad' => (freeLeft(q) > 0 ? 'free' : 'ad');
+
+/** Gives back a question that got no answer (the online guide failed before writing anything). */
+export function refund(q: AiQuota, source: 'free' | 'ad'): AiQuota {
+  return source === 'free' ? { ...q, freeUsed: Math.max(q.freeUsed - 1, 0) } : { ...q, adCredits: q.adCredits + 1 };
+}
+
 /** One ad watched to the end earns one question, up to the day's ad limit. */
 export function rewarded(q: AiQuota): AiQuota {
   return canWatchAd(q) ? { ...q, adsWatched: q.adsWatched + 1, adCredits: q.adCredits + 1 } : q;

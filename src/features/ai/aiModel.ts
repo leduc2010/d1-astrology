@@ -1,17 +1,32 @@
 import {
+  AskAiError,
   askUsage,
   deepEqual,
   resolveBirth,
+  type AskAi,
+  type AskAiFailure,
+  type AskAiTurn,
   type AskUsage,
   type AskUsageRepository,
   type ObservableRepository,
   type RewardedAds,
 } from '@/core/data';
 import { DEFAULT_ASK_LIMITS, type AskLimits, type BirthProfile } from '@/core/model';
-import { Readings, readingCharts, type TopicReading } from '@/core/reading';
+import { Readings, readingCharts, type ReadingCharts, type TopicReading } from '@/core/reading';
+import { currentUiText, type UiText } from '@/core/ui';
 
-import { aiQuota, canAsk, canWatchAd, rewarded, spend, type AiQuota } from './aiQuota';
-import { answerMessage, isWriting, isWritingMessage, type AnswerMessage, type ChatMessage } from './chatMessage';
+import { aiQuota, canAsk, canWatchAd, refund, rewarded, spend, spendSource, type AiQuota } from './aiQuota';
+import { chartContext } from './chartContext';
+import {
+  answerMessage,
+  isReplyWriting,
+  isWriting,
+  isWritingMessage,
+  replyMessage,
+  type AnswerMessage,
+  type ChatMessage,
+  type ReplyMessage,
+} from './chatMessage';
 import { isCrisis } from './crisisDetector';
 import { isInvestmentQuestion } from './investmentDetector';
 import { topicOf } from './topicDetector';
@@ -19,6 +34,12 @@ import { topicOf } from './topicDetector';
 /** Pause before the first part of an answer appears, then between parts. */
 export const THINKING_MS = 900;
 export const PART_MS = 700;
+
+/** Earlier turns sent with an online question, oldest dropped first. */
+export const HISTORY_TURNS = 6;
+/** The proxy's limits (server/ai-proxy/src/prompt.ts LIMITS). */
+const QUESTION_CHARS = 500;
+const TURN_CHARS = 2_000;
 
 export type AiReady = {
   readonly kind: 'ready';
@@ -30,6 +51,8 @@ export type AiReady = {
   readonly watchingAd: boolean;
   readonly showSupport: boolean;
   readonly isAnswering: boolean;
+  /** A question waits for the owner to agree to send it to the online guide. */
+  readonly askConsent: boolean;
 };
 
 /** Unavailable: the profile could not be turned into charts (a date outside the supported range). */
@@ -47,6 +70,8 @@ type ChatSession = {
   readonly outOfQuestions: boolean;
   readonly watchingAd: boolean;
   readonly showSupport: boolean;
+  /** Held while the AI consent sheet is open. */
+  readonly pendingQuestion: string | null;
 };
 
 const NEW_SESSION: ChatSession = {
@@ -57,9 +82,13 @@ const NEW_SESSION: ChatSession = {
   outOfQuestions: false,
   watchingAd: false,
   showSupport: false,
+  pendingQuestion: null,
 };
 
-type Owner = { readonly name: string; readonly readings: readonly TopicReading[] } | 'failed' | null;
+type Owner =
+  | { readonly name: string; readonly charts: ReadingCharts; readonly readings: readonly TopicReading[] }
+  | 'failed'
+  | null;
 
 export type AiModelDeps = {
   readonly profiles: ObservableRepository<BirthProfile | null>;
@@ -67,6 +96,12 @@ export type AiModelDeps = {
   readonly usage: AskUsageRepository;
   /** Today's local date as an epoch day. */
   readonly today: () => number;
+  /** The online guide, or null to answer offline from the owner's readings. */
+  readonly askAi?: AskAi | null;
+  /** Saves the owner's agreement to send questions to the online guide. */
+  readonly grantAiConsent?: () => Promise<void>;
+  /** The texts the chart summary is written in; the app language by default. */
+  readonly uiText?: () => UiText;
 };
 
 const toQuota = (saved: AskUsage): AiQuota =>
@@ -74,16 +109,19 @@ const toQuota = (saved: AskUsage): AiQuota =>
 
 function ownerOf(profile: BirthProfile): Owner {
   try {
-    return { name: profile.name, readings: Readings.all(readingCharts(resolveBirth(profile))) };
+    const charts = readingCharts(resolveBirth(profile));
+    return { name: profile.name, charts, readings: Readings.all(charts) };
   } catch {
     return 'failed';
   }
 }
 
 /**
- * Offline "Ask AI": answers come from the owner's own topic readings, picked by what the question
- * is about, and are written out part by part like a chat reply. Plain TypeScript: the screen reads
- * it through `useAiModel`, tests drive it directly.
+ * Ask AI. With an online guide ([AiModelDeps.askAi]) and the owner's consent, a question goes to
+ * the proxy with a chart summary (no name or birth details) and the reply streams in. Without one,
+ * answers come from the owner's own topic readings, picked by what the question is about, and are
+ * written out part by part. Plain TypeScript: the screen reads it through `useAiModel`, tests
+ * drive it directly.
  */
 export class AiModel {
   private session: ChatSession = NEW_SESSION;
@@ -93,6 +131,10 @@ export class AiModel {
   private limits: AskLimits = DEFAULT_ASK_LIMITS;
   private nextId = 0;
   private answerTimer: ReturnType<typeof setTimeout> | null = null;
+  private aiConsent = false;
+  private replyAbort: AbortController | null = null;
+  /** Where the question being answered online was taken from, to give it back if nothing comes. */
+  private replySource: 'free' | 'ad' = 'free';
   private snapshot: AiUiState = { kind: 'loading' };
   private readonly listeners = new Set<() => void>();
   private unsubscribeProfile: (() => void) | null = null;
@@ -112,7 +154,7 @@ export class AiModel {
       // Unreadable counts: a fresh allowance, never a lost question.
       () => this.quotaLoaded(null),
     );
-    const writing = this.session.messages.find(isWritingMessage);
+    const writing = this.session.messages.find((m) => m.kind === 'answer' && isWriting(m));
     if (writing && this.answerTimer === null) this.scheduleReveal(writing.id, PART_MS);
     return () => this.stop();
   }
@@ -130,6 +172,18 @@ export class AiModel {
     this.premium = premium;
     this.limits = limits;
     this.emit();
+  }
+
+  /** Whether the owner has agreed to send questions to the online guide (from settings). */
+  setAiConsent(consented: boolean): void {
+    if (consented === this.aiConsent) return;
+    this.aiConsent = consented;
+    this.emit();
+  }
+
+  /** True when this build answers online. */
+  get isOnline(): boolean {
+    return this.deps.askAi != null;
   }
 
   /**
@@ -161,6 +215,15 @@ export class AiModel {
       this.update((s) => ({ ...s, outOfQuestions: true }));
       return false;
     }
+    if (this.deps.askAi) {
+      if (!this.aiConsent) {
+        // Kept in the composer until the owner agrees; nothing is sent or counted yet.
+        this.update((s) => ({ ...s, pendingQuestion: question }));
+        return false;
+      }
+      this.askOnline(question, this.deps.askAi);
+      return true;
+    }
     const topic = topicOf(question);
     const reading = ready.readings.find((it) => it.topic === topic);
     if (!reading) return false;
@@ -180,6 +243,26 @@ export class AiModel {
   onStop(): void {
     this.cancelAnswer();
     this.updateWriting((a) => ({ ...a, stopped: true }));
+  }
+
+  /**
+   * The owner agreed on the consent sheet: saves it and sends the question that was waiting.
+   * Returns [onAsk]'s answer, so the composer is cleared only when the question went out.
+   */
+  onAcceptAiConsent(): boolean {
+    const question = this.session.pendingQuestion;
+    this.aiConsent = true;
+    this.update((s) => ({ ...s, pendingQuestion: null }));
+    this.deps.grantAiConsent?.().catch(() => {
+      // Not saved: ask again next time rather than act on a consent the Privacy screen does not show.
+      this.aiConsent = false;
+      this.emit();
+    });
+    return question !== null && this.onAsk(question);
+  }
+
+  onDeclineAiConsent(): void {
+    this.update((s) => ({ ...s, pendingQuestion: null }));
   }
 
   /** Plays a rewarded ad; watching it to the end adds one question for today. */
@@ -207,6 +290,7 @@ export class AiModel {
 
   private stop(): void {
     this.cancelAnswer();
+    this.abortReply();
     this.unsubscribeProfile?.();
     this.unsubscribeProfile = null;
   }
@@ -230,6 +314,11 @@ export class AiModel {
 
   private setProfile(profile: BirthProfile | null): void {
     if (this.profile !== undefined && deepEqual(profile, this.profile)) return;
+    if (this.profile !== undefined && this.session.messages.length > 0) {
+      // Another person (or edited birth details): earlier turns spoke about a different chart.
+      this.cancelAnswer();
+      this.session = { ...this.session, messages: [] };
+    }
     this.profile = profile;
     this.owner = profile ? ownerOf(profile) : null;
     this.emit();
@@ -260,6 +349,89 @@ export class AiModel {
   private cancelAnswer(): void {
     if (this.answerTimer !== null) clearTimeout(this.answerTimer);
     this.answerTimer = null;
+    this.abortReply();
+  }
+
+  /**
+   * Stops the online reply being written (Stop, New chat, leaving the screen). A reply with no
+   * text yet gives its question back; one with text keeps what came and counts.
+   */
+  private abortReply(): void {
+    if (this.replyAbort === null) return;
+    this.replyAbort.abort();
+    this.replyAbort = null;
+    const reply = this.session.messages.find((m) => m.kind === 'reply' && isReplyWriting(m));
+    if (reply?.kind !== 'reply') return;
+    const empty = reply.text.trim() === '';
+    this.updateReplyWriting((r) => (empty ? { ...r, status: 'failed', refunded: true } : { ...r, status: 'stopped' }));
+    if (empty) this.refund(this.replySource);
+  }
+
+  private askOnline(question: string, askAi: AskAi): void {
+    const owner = this.owner;
+    if (!owner || owner === 'failed') return;
+    const history = historyOf(this.session.messages);
+    const source = spendSource(this.session.quota);
+    this.replySource = source;
+    const questionId = this.nextId++;
+    const replyId = this.nextId++;
+    this.update((s) => ({
+      ...s,
+      messages: [...s.messages, { kind: 'question', id: questionId, text: question }, replyMessage(replyId)],
+      quota: spend(s.quota),
+    }));
+    this.saveQuota();
+    const t = (this.deps.uiText ?? currentUiText)();
+    const abort = new AbortController();
+    this.replyAbort = abort;
+    const updateReply = (transform: (r: ReplyMessage) => ReplyMessage) =>
+      this.update((s) => ({
+        ...s,
+        messages: s.messages.map((m) => (m.kind === 'reply' && m.id === replyId ? transform(m) : m)),
+      }));
+    const request = { question: question.slice(0, QUESTION_CHARS), language: t.language, chart: chartContext(t, owner.charts, owner.readings), history };
+    const onText = (chunk: string) => {
+      if (abort.signal.aborted) return;
+      updateReply((r) => (isReplyWriting(r) ? { ...r, text: r.text + chunk, status: 'streaming' } : r));
+    };
+    const finish = (failure: AskAiFailure | null) => {
+      if (abort.signal.aborted) return;
+      const empty = (this.replyOf(replyId)?.text ?? '').trim() === '';
+      if (empty) {
+        updateReply((r) => ({ ...r, status: 'failed', failure: failure ?? 'failed', refunded: true }));
+        this.refund(source);
+      } else {
+        // A broken stream keeps what came and counts; it reads as stopped.
+        updateReply((r) => ({ ...r, status: failure === null ? 'done' : 'failed', failure }));
+      }
+    };
+    askAi
+      .ask(request, onText, abort.signal)
+      .then(
+        () => finish(null),
+        (error: unknown) => finish(error instanceof AskAiError ? error.failure : 'failed'),
+      )
+      .finally(() => {
+        if (this.replyAbort === abort) this.replyAbort = null;
+      });
+  }
+
+  private replyOf(id: number): ReplyMessage | undefined {
+    const message = this.session.messages.find((m) => m.id === id);
+    return message?.kind === 'reply' ? message : undefined;
+  }
+
+  /** A question that got nothing back is not counted. */
+  private refund(source: 'free' | 'ad'): void {
+    this.update((s) => ({ ...s, quota: refund(s.quota, source) }));
+    this.saveQuota();
+  }
+
+  private updateReplyWriting(transform: (r: ReplyMessage) => ReplyMessage): void {
+    this.update((s) => ({
+      ...s,
+      messages: s.messages.map((it) => (it.kind === 'reply' && isReplyWriting(it) ? transform(it) : it)),
+    }));
   }
 
   private updateWriting(transform: (a: AnswerMessage) => AnswerMessage): void {
@@ -321,6 +493,25 @@ export class AiModel {
       watchingAd: chat.watchingAd,
       showSupport: chat.showSupport,
       isAnswering: chat.messages.some(isWritingMessage),
+      askConsent: chat.pendingQuestion !== null,
     };
   }
+}
+
+/**
+ * The online turns before a new question, as the proxy expects them: each question with the reply
+ * it got, offline answers and failed replies left out, newest [HISTORY_TURNS] kept.
+ */
+export function historyOf(messages: readonly ChatMessage[]): AskAiTurn[] {
+  const turns: AskAiTurn[] = [];
+  messages.forEach((m, i) => {
+    const next = messages[i + 1];
+    if (m.kind !== 'question' || next?.kind !== 'reply' || next.text.trim() === '') return;
+    if (next.status !== 'done' && next.status !== 'stopped') return;
+    turns.push(
+      { role: 'user', content: m.text.slice(0, TURN_CHARS) },
+      { role: 'assistant', content: next.text.slice(0, TURN_CHARS) },
+    );
+  });
+  return turns.slice(-HISTORY_TURNS);
 }

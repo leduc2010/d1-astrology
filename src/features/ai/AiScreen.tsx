@@ -25,12 +25,13 @@ import { navigateToAiSupport, navigateToPaywall } from '@/navigation/routes';
 import { AiIntro, ChatLine } from './AiChat';
 import type { AiModel, AiReady, AiUiState } from './aiModel';
 import { questionsLeft } from './aiQuota';
-import { OutOfQuestionsSheet, SourcesSheet } from './AiSheets';
+import { AiConsentSheet, OutOfQuestionsSheet, SourcesSheet } from './AiSheets';
 import { useAiModel } from './useAiModel';
 
 /**
- * S06 Ask AI tab: a mock chat answered from the owner's charts. Mental-health questions lead to
- * the support screen instead, and investment questions are declined.
+ * S06 Ask AI tab: answered by the online guide when the build has one (after the owner agrees),
+ * otherwise from the owner's own readings. Mental-health questions lead to the support screen
+ * instead, and investment questions are declined; neither leaves the device.
  */
 export function AiScreen() {
   const { state, model } = useAiModel();
@@ -146,6 +147,14 @@ function Conversation({ state, model }: { state: AiReady; model: AiModel }) {
       </View>
       {sourcesAnswer?.kind === 'answer' ? (
         <SourcesSheet answer={sourcesAnswer} onDismiss={() => setSourcesFor(null)} />
+      ) : null}
+      {state.askConsent ? (
+        <AiConsentSheet
+          onAccept={() => {
+            if (model.onAcceptAiConsent()) setDraft('');
+          }}
+          onDismiss={() => model.onDeclineAiConsent()}
+        />
       ) : null}
       {state.outOfQuestions ? (
         <OutOfQuestionsSheet

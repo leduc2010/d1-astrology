@@ -184,6 +184,11 @@ export interface UserSettings {
   readonly weekStart: WeekStart;
   /** The small lunar day under each date of the month grid. */
   readonly showLunarInCalendar: boolean;
+  /**
+   * Ask AI may send the question and a chart summary (never name or birth details) to the AI
+   * proxy. RN-only: the Kotlin app has no online AI. Off until the owner agrees.
+   */
+  readonly aiConsent: boolean;
   /** Chosen app language code; null follows the device. RN-only: Android keeps this in per-app locales. */
   readonly language: string | null;
 }
@@ -197,6 +202,7 @@ export const DEFAULT_SETTINGS: UserSettings = Object.freeze({
   personalizedAds: false,
   weekStart: WeekStart.MONDAY,
   showLunarInCalendar: true,
+  aiConsent: false,
   language: null,
 });
 

@@ -133,6 +133,24 @@ function WatchAd({ quota, watchingAd, onWatchAd }: Pick<MoreQuestionsProps, 'quo
   );
 }
 
+/**
+ * RN-only: before the first online question, says what leaves the device (the question and a
+ * chart summary, never name or birth details) and asks the owner to agree.
+ */
+export function AiConsentSheet({ onAccept, onDismiss }: { onAccept: () => void; onDismiss: () => void }) {
+  const { tf } = useT();
+  return (
+    <OrtusBottomSheet onDismiss={onDismiss} title={tf('ai_consent_title')} subtitle={tf('ai_consent_body')}>
+      {(close) => (
+        <View style={styles.more}>
+          <OrtusWideButton text={tf('ai_consent_accept')} onPress={onAccept} />
+          <OrtusWideButton text={tf('ai_consent_decline')} onPress={close} variant={ButtonStyle.Outline} />
+        </View>
+      )}
+    </OrtusBottomSheet>
+  );
+}
+
 const styles = StyleSheet.create({
   source: { gap: OrtusSpacing.xxs, alignItems: 'flex-start' },
   more: { gap: OrtusSpacing.md },

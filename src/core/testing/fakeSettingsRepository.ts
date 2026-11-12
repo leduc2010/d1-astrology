@@ -48,6 +48,10 @@ export class FakeSettingsRepository extends FakeRepository<UserSettings> impleme
     return this.write({ showLunarInCalendar: enabled });
   }
 
+  setAiConsent(enabled: boolean): Promise<void> {
+    return this.write({ aiConsent: enabled });
+  }
+
   setLanguage(language: string | null): Promise<void> {
     return this.write({ language });
   }

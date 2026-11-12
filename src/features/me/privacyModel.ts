@@ -12,6 +12,8 @@ export interface PrivacyUiState {
   readonly personalizedTips: boolean;
   readonly analytics: boolean;
   readonly personalizedAds: boolean;
+  /** RN-only: Ask AI may send questions and a chart summary to the online guide. */
+  readonly aiConsent: boolean;
   readonly erase: EraseStatus;
 }
 
@@ -19,6 +21,7 @@ export const DEFAULT_PRIVACY_UI_STATE: PrivacyUiState = Object.freeze({
   personalizedTips: false,
   analytics: false,
   personalizedAds: false,
+  aiConsent: false,
   erase: EraseStatus.Idle,
 });
 
@@ -32,6 +35,7 @@ export function privacyUiState(
     personalizedTips: settings.personalizedTips,
     analytics: settings.analyticsConsent,
     personalizedAds: settings.personalizedAds,
+    aiConsent: settings.aiConsent,
     erase: requested ? status : EraseStatus.Idle,
   });
 }
@@ -59,6 +63,9 @@ export class PrivacyModel implements ScreenModel<PrivacyUiState> {
     this.refresh();
     return () => stops.forEach((stop) => stop());
   }
+
+  setAiConsent = (enabled: boolean): Promise<void> =>
+    saveQuietly(() => this.settingsRepository.setAiConsent(enabled));
 
   setPersonalizedTips = (enabled: boolean): Promise<void> =>
     saveQuietly(() => this.settingsRepository.setPersonalizedTips(enabled));

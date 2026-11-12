@@ -2,6 +2,7 @@ import { createContext, createElement, useContext, useState, type ReactNode } fr
 
 import { createTelemetry, type Telemetry } from '../telemetry';
 import { StubRewardedAds, type RewardedAds } from './ads/rewardedAds';
+import { askAiFromEnv, type AskAi } from './ai/askAi';
 import { createAskUsageRepository, type AskUsageRepository } from './askUsageRepository';
 import type { Billing } from './billing/billing';
 import { StubBilling } from './billing/stubBilling';
@@ -23,6 +24,8 @@ export interface AppServices {
   readonly eraser: DataEraser;
   /** Remote config, analytics and crash reports; no vendor SDK and never any birth data. */
   readonly telemetry: Telemetry;
+  /** The online Ask AI proxy, or null when the build has none (Ask AI answers offline). */
+  readonly askAi: AskAi | null;
 }
 
 /** Store-backed services can be swapped (a real store SDK, fakes in tests); repositories cannot. */
@@ -30,6 +33,8 @@ export interface ServiceOverrides {
   readonly billing?: Billing;
   readonly rewardedAds?: RewardedAds;
   readonly telemetry?: Telemetry;
+  /** null forces the offline answers. */
+  readonly askAi?: AskAi | null;
 }
 
 /** Builds every service over one [store], AsyncStorage by default. Call once per app. */
@@ -49,6 +54,7 @@ export function createAppServices(
     rewardedAds: overrides.rewardedAds ?? new StubRewardedAds(),
     eraser: new DataEraser(partners, profile, settings),
     telemetry: overrides.telemetry ?? createTelemetry(),
+    askAi: overrides.askAi !== undefined ? overrides.askAi : askAiFromEnv(),
   });
 }
 

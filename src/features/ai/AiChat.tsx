@@ -31,7 +31,16 @@ import {
 import { useT } from '@/i18n';
 
 import { dailyAllowance, freeLeft, offersAds, type AiQuota } from './aiQuota';
-import { answerDetails, isComplete, isWriting, type AnswerMessage, type ChatMessage } from './chatMessage';
+import { plainReply } from './replyText';
+import {
+  answerDetails,
+  isComplete,
+  isReplyWriting,
+  isWriting,
+  type AnswerMessage,
+  type ChatMessage,
+  type ReplyMessage,
+} from './chatMessage';
 
 /** S06-01 empty chat: today's allowance, a short welcome and a few questions to start with. */
 export function AiIntro({ quota, onAsk }: { quota: AiQuota; onAsk: (question: string) => void }) {
@@ -95,6 +104,7 @@ export function ChatLine({ message, onViewSources }: { message: ChatMessage; onV
     <Reveal index={0}>
       {message.kind === 'question' ? <QuestionBubble text={message.text} /> : null}
       {message.kind === 'answer' ? <AnswerView answer={message} onViewSources={onViewSources} /> : null}
+      {message.kind === 'reply' ? <ReplyView reply={message} /> : null}
       {message.kind === 'investmentDeclined' ? (
         <AnswerBubble>
           <OrtusText variant="body" color={c.textPrimary}>
@@ -149,6 +159,32 @@ function AnswerView({ answer, onViewSources }: { answer: AnswerMessage; onViewSo
         </OrtusText>
       ) : null}
       {!writing && shownFacts.length > 0 ? <AnswerSources facts={shownFacts} onViewSources={onViewSources} /> : null}
+    </AnswerBubble>
+  );
+}
+
+/** A reply from the online guide: dots until the first words, then the text as it streams in. */
+function ReplyView({ reply }: { reply: ReplyMessage }) {
+  const { tf } = useT();
+  const writing = isReplyWriting(reply);
+  return (
+    <AnswerBubble>
+      {reply.text !== '' ? (
+        <OrtusText variant="body" color={c.textPrimary}>
+          {plainReply(reply.text)}
+        </OrtusText>
+      ) : null}
+      {writing ? <TypingDots style={styles.dots} /> : null}
+      {reply.refunded && reply.failure !== null ? (
+        <OrtusText variant="callout" color={c.textSecondary}>
+          {tf(reply.failure === 'busy' ? 'ai_busy' : 'ai_failed')}
+        </OrtusText>
+      ) : null}
+      {reply.status === 'stopped' || (reply.status === 'failed' && !(reply.refunded && reply.failure !== null)) ? (
+        <OrtusText variant="footnote" color={c.textMuted}>
+          {tf('ai_stopped')}
+        </OrtusText>
+      ) : null}
     </AnswerBubble>
   );
 }

@@ -124,6 +124,10 @@ export function OrtusWheelPicker({ items, selectedIndex, onSelect, label, large 
     >
       <ScrollView
         ref={scroll}
+        // Android: without it a scrollable page around the wheel takes the vertical drag and the
+        // wheel never turns (Add person form, or any date step on a small screen / large font).
+        nestedScrollEnabled
+        testID={testID === undefined ? undefined : `${testID}-scroll`}
         importantForAccessibility="no-hide-descendants"
         accessibilityElementsHidden
         showsVerticalScrollIndicator={false}

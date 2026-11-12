@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 
-import { useMembership, useServices } from '@/core/data';
+import { useMembership, useServices, useSettings } from '@/core/data';
 import { AdPlacement, todayEpochDay } from '@/core/model';
 import { useRemoteValues } from '@/core/telemetry';
 import { useAdPlacements } from '@/core/ui';
@@ -24,6 +24,8 @@ export function useAiModel(): { state: AiUiState; model: AiModel } {
         rewardedAds: services.rewardedAds,
         usage: services.askUsage,
         today: todayEpochDay,
+        askAi: services.askAi,
+        grantAiConsent: () => services.settings.setAiConsent(true),
       }),
   );
 
@@ -36,6 +38,9 @@ export function useAiModel(): { state: AiUiState; model: AiModel } {
     [adsOn, remote.askLimits],
   );
   useEffect(() => model.setAllowance(premium, limits), [model, premium, limits]);
+
+  const aiConsent = useSettings()?.aiConsent ?? false;
+  useEffect(() => model.setAiConsent(aiConsent), [model, aiConsent]);
 
   const state = useSyncExternalStore(model.subscribe, model.getState);
   return { state, model };

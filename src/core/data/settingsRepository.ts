@@ -15,6 +15,8 @@ export interface SettingsRepository extends ObservableRepository<UserSettings> {
   setPersonalizedAds(enabled: boolean): Promise<void>;
   setWeekStart(weekStart: WeekStart): Promise<void>;
   setShowLunarInCalendar(enabled: boolean): Promise<void>;
+  /** Ask AI may send the question and a chart summary to the AI proxy. RN-only. */
+  setAiConsent(enabled: boolean): Promise<void>;
   /** The app language code, or null to follow the device. RN-only (Android uses per-app locales). */
   setLanguage(language: string | null): Promise<void>;
   /**
@@ -37,6 +39,7 @@ const Keys = Object.freeze({
   WEEK_START: 'week_start',
   SHOW_LUNAR: 'calendar_show_lunar',
   LANGUAGE: 'app_language',
+  AI_CONSENT: 'consent_ai',
 });
 
 const WEEK_STARTS: readonly WeekStart[] = [WeekStart.MONDAY, WeekStart.SUNDAY];
@@ -68,6 +71,10 @@ class StoredSettingsRepository extends PreferencesRepository<UserSettings> imple
 
   setShowLunarInCalendar(enabled: boolean): Promise<void> {
     return this.setFlag(Keys.SHOW_LUNAR, enabled);
+  }
+
+  setAiConsent(enabled: boolean): Promise<void> {
+    return this.setFlag(Keys.AI_CONSENT, enabled);
   }
 
   setConsents(personalizedTips: boolean, analytics: boolean): Promise<void> {
@@ -108,6 +115,7 @@ class StoredSettingsRepository extends PreferencesRepository<UserSettings> imple
       personalizedAds: readBoolean(prefs, Keys.PERSONALIZED_ADS) ?? d.personalizedAds,
       weekStart: WEEK_STARTS.find((w) => w === weekStart) ?? d.weekStart,
       showLunarInCalendar: readBoolean(prefs, Keys.SHOW_LUNAR) ?? d.showLunarInCalendar,
+      aiConsent: readBoolean(prefs, Keys.AI_CONSENT) ?? d.aiConsent,
       language: readString(prefs, Keys.LANGUAGE) ?? d.language,
     });
   }

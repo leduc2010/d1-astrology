@@ -1,0 +1,142 @@
+{
+  "en": {
+    "ai_busy": "The guide is busy right now. Try again in a minute; this question was not counted.",
+    "ai_consent_accept": "Agree and ask",
+    "ai_consent_body": "To answer, Ask AI sends your question and a summary of your charts (stars, pillars and planets) to our server and an AI provider. Your name and birth place are never sent, but the summary is worked out from your birth date and time, so they could be inferred from it. You can turn this off in Privacy.",
+    "ai_consent_decline": "Not now",
+    "ai_consent_title": "Send your question to the AI?",
+    "ai_failed": "Couldn't reach the guide. Check your connection and try again; this question was not counted.",
+    "privacy_ai_subtitle": "Sends your question and a chart summary (no name or birth place)",
+    "privacy_ai_title": "Ask AI"
+  },
+  "vi": {
+    "ai_busy": "Trợ lý đang bận. Bạn thử lại sau một phút nhé; câu hỏi này không bị tính.",
+    "ai_consent_accept": "Đồng ý và hỏi",
+    "ai_consent_body": "Để trả lời, Hỏi AI gửi câu hỏi của bạn cùng bản tóm tắt lá số (sao, trụ và hành tinh) tới máy chủ của chúng tôi và một nhà cung cấp AI. Tên và nơi sinh không bao giờ được gửi đi, nhưng bản tóm tắt được tính từ ngày và giờ sinh nên có thể suy ra chúng. Bạn có thể tắt việc này trong mục Quyền riêng tư.",
+    "ai_consent_decline": "Để sau",
+    "ai_consent_title": "Gửi câu hỏi tới AI?",
+    "ai_failed": "Không kết nối được trợ lý. Bạn kiểm tra mạng rồi thử lại nhé; câu hỏi này không bị tính.",
+    "privacy_ai_subtitle": "Gửi câu hỏi và tóm tắt lá số (không gửi tên hay nơi sinh)",
+    "privacy_ai_title": "Hỏi AI"
+  },
+  "es": {
+    "ai_busy": "La guía está ocupada ahora. Inténtalo de nuevo en un minuto; esta pregunta no se ha contado.",
+    "ai_consent_accept": "Aceptar y preguntar",
+    "ai_consent_body": "Para responder, Pregunta a la IA envía tu pregunta y un resumen de tus cartas (estrellas, pilares y planetas) a nuestro servidor y a un proveedor de IA. Nunca se envían tu nombre ni tu lugar de nacimiento, pero el resumen se calcula a partir de tu fecha y hora de nacimiento, así que podrían deducirse de él. Puedes desactivarlo en Privacidad.",
+    "ai_consent_decline": "Ahora no",
+    "ai_consent_title": "¿Enviar tu pregunta a la IA?",
+    "ai_failed": "No se pudo contactar con la guía. Revisa tu conexión e inténtalo de nuevo; esta pregunta no se ha contado.",
+    "privacy_ai_subtitle": "Envía tu pregunta y un resumen de tu carta (sin nombre ni lugar de nacimiento)",
+    "privacy_ai_title": "Pregunta a la IA"
+  },
+  "pt-BR": {
+    "ai_busy": "O guia está ocupado agora. Tente de novo em um minuto; esta pergunta não foi contada.",
+    "ai_consent_accept": "Aceitar e perguntar",
+    "ai_consent_body": "Para responder, Pergunte à IA envia sua pergunta e um resumo dos seus mapas (estrelas, pilares e planetas) ao nosso servidor e a um provedor de IA. Seu nome e local de nascimento nunca são enviados, mas o resumo é calculado a partir da sua data e hora de nascimento, então elas poderiam ser deduzidas dele. Você pode desativar isso em Privacidade.",
+    "ai_consent_decline": "Agora não",
+    "ai_consent_title": "Enviar sua pergunta para a IA?",
+    "ai_failed": "Não foi possível falar com o guia. Verifique sua conexão e tente de novo; esta pergunta não foi contada.",
+    "privacy_ai_subtitle": "Envia sua pergunta e um resumo do mapa (sem nome nem local de nascimento)",
+    "privacy_ai_title": "Pergunte à IA"
+  },
+  "fr": {
+    "ai_busy": "Le guide est occupé pour le moment. Réessayez dans une minute ; cette question n’a pas été comptée.",
+    "ai_consent_accept": "Accepter et demander",
+    "ai_consent_body": "Pour répondre, Demander à l’IA envoie votre question et un résumé de vos thèmes (étoiles, piliers et planètes) à notre serveur et à un fournisseur d’IA. Votre nom et votre lieu de naissance ne sont jamais envoyés, mais le résumé est calculé à partir de votre date et de votre heure de naissance, qui pourraient donc en être déduites. Vous pouvez désactiver cela dans Confidentialité.",
+    "ai_consent_decline": "Pas maintenant",
+    "ai_consent_title": "Envoyer votre question à l’IA ?",
+    "ai_failed": "Impossible de joindre le guide. Vérifiez votre connexion et réessayez ; cette question n’a pas été comptée.",
+    "privacy_ai_subtitle": "Envoie votre question et un résumé de votre thème (sans nom ni lieu de naissance)",
+    "privacy_ai_title": "Demander à l’IA"
+  },
+  "de": {
+    "ai_busy": "Der Guide ist gerade ausgelastet. Versuch es in einer Minute noch einmal; diese Frage wurde nicht gezählt.",
+    "ai_consent_accept": "Zustimmen und fragen",
+    "ai_consent_body": "Für die Antwort sendet KI fragen deine Frage und eine Zusammenfassung deiner Horoskope (Sterne, Säulen und Planeten) an unseren Server und einen KI-Anbieter. Name und Geburtsort werden nie gesendet, aber die Zusammenfassung wird aus Geburtsdatum und -zeit berechnet, sodass sich diese daraus ableiten ließen. Du kannst das unter Datenschutz ausschalten.",
+    "ai_consent_decline": "Nicht jetzt",
+    "ai_consent_title": "Frage an die KI senden?",
+    "ai_failed": "Der Guide ist nicht erreichbar. Prüfe deine Verbindung und versuch es erneut; diese Frage wurde nicht gezählt.",
+    "privacy_ai_subtitle": "Sendet deine Frage und eine Horoskop-Zusammenfassung (ohne Namen und Geburtsort)",
+    "privacy_ai_title": "KI fragen"
+  },
+  "ru": {
+    "ai_busy": "Помощник сейчас занят. Попробуйте через минуту; этот вопрос не засчитан.",
+    "ai_consent_accept": "Согласиться и спросить",
+    "ai_consent_body": "Чтобы ответить, «Спросить ИИ» отправляет ваш вопрос и краткую сводку ваших карт (звёзды, столпы и планеты) на наш сервер и поставщику ИИ. Ваше имя и место рождения никогда не отправляются, но сводка рассчитана по дате и времени рождения, поэтому их можно по ней вычислить. Это можно отключить в разделе «Конфиденциальность».",
+    "ai_consent_decline": "Не сейчас",
+    "ai_consent_title": "Отправить вопрос ИИ?",
+    "ai_failed": "Не удалось связаться с помощником. Проверьте подключение и попробуйте снова; этот вопрос не засчитан.",
+    "privacy_ai_subtitle": "Отправляет вопрос и сводку карты (без имени и места рождения)",
+    "privacy_ai_title": "Спросить ИИ"
+  },
+  "hi": {
+    "ai_busy": "गाइड अभी व्यस्त है। एक मिनट बाद फिर कोशिश करें; यह सवाल गिना नहीं गया।",
+    "ai_consent_accept": "सहमत हूँ और पूछें",
+    "ai_consent_body": "जवाब देने के लिए, AI से पूछें आपका सवाल और आपकी कुंडलियों का सार (तारे, स्तंभ और ग्रह) हमारे सर्वर और एक AI प्रदाता को भेजता है। आपका नाम और जन्म स्थान कभी नहीं भेजे जाते, लेकिन सार आपकी जन्म तिथि और समय से बनता है, इसलिए उससे इनका अनुमान लगाया जा सकता है। आप इसे गोपनीयता में बंद कर सकते हैं।",
+    "ai_consent_decline": "अभी नहीं",
+    "ai_consent_title": "अपना सवाल AI को भेजें?",
+    "ai_failed": "गाइड से संपर्क नहीं हो सका। अपना कनेक्शन जाँचें और फिर कोशिश करें; यह सवाल गिना नहीं गया।",
+    "privacy_ai_subtitle": "आपका सवाल और कुंडली का सार भेजता है (नाम या जन्म स्थान नहीं)",
+    "privacy_ai_title": "AI से पूछें"
+  },
+  "id": {
+    "ai_busy": "Pemandu sedang sibuk. Coba lagi dalam satu menit; pertanyaan ini tidak dihitung.",
+    "ai_consent_accept": "Setuju dan tanya",
+    "ai_consent_body": "Untuk menjawab, Tanya AI mengirim pertanyaanmu dan ringkasan bagan (bintang, pilar, dan planet) ke server kami dan penyedia AI. Nama dan tempat lahirmu tidak pernah dikirim, tetapi ringkasan dihitung dari tanggal dan jam lahirmu, jadi keduanya bisa ditebak darinya. Kamu bisa mematikannya di Privasi.",
+    "ai_consent_decline": "Nanti saja",
+    "ai_consent_title": "Kirim pertanyaanmu ke AI?",
+    "ai_failed": "Tidak bisa menghubungi pemandu. Periksa koneksimu lalu coba lagi; pertanyaan ini tidak dihitung.",
+    "privacy_ai_subtitle": "Mengirim pertanyaan dan ringkasan bagan (tanpa nama atau tempat lahir)",
+    "privacy_ai_title": "Tanya AI"
+  },
+  "ko": {
+    "ai_busy": "가이드가 지금 바빠요. 1분 뒤에 다시 시도해 주세요. 이 질문은 차감되지 않았어요.",
+    "ai_consent_accept": "동의하고 질문하기",
+    "ai_consent_body": "답변을 위해 AI에게 묻기는 질문과 차트 요약(별, 기둥, 행성)을 저희 서버와 AI 제공업체에 보냅니다. 이름과 출생 장소는 절대 보내지 않지만, 요약은 생년월일과 출생 시간으로 계산되므로 이를 통해 추정될 수 있어요. 개인정보에서 끌 수 있어요.",
+    "ai_consent_decline": "나중에",
+    "ai_consent_title": "질문을 AI에게 보낼까요?",
+    "ai_failed": "가이드에 연결할 수 없어요. 연결을 확인하고 다시 시도해 주세요. 이 질문은 차감되지 않았어요.",
+    "privacy_ai_subtitle": "질문과 차트 요약을 보내요(이름과 출생 장소 제외)",
+    "privacy_ai_title": "AI에게 묻기"
+  },
+  "zh": {
+    "ai_busy": "向导现在有点忙，请一分钟后再试；本次提问不计入次数。",
+    "ai_consent_accept": "同意并提问",
+    "ai_consent_body": "为了回答，问 AI 会把你的问题和命盘摘要（星曜、四柱和行星）发送到我们的服务器和一家 AI 服务商。你的姓名和出生地点绝不会被发送，但摘要是根据出生日期和时间推算的，因此可能据此推断出它们。你可以在隐私设置中关闭。",
+    "ai_consent_decline": "暂不",
+    "ai_consent_title": "把问题发送给 AI？",
+    "ai_failed": "无法连接向导。请检查网络后重试；本次提问不计入次数。",
+    "privacy_ai_subtitle": "发送问题和命盘摘要（不含姓名和出生地点）",
+    "privacy_ai_title": "问 AI"
+  },
+  "ar": {
+    "ai_busy": "المرشد مشغول الآن. حاول مرة أخرى بعد دقيقة؛ لم يُحتسب هذا السؤال.",
+    "ai_consent_accept": "موافق واسأل",
+    "ai_consent_body": "للإجابة، يرسل «اسأل الذكاء الاصطناعي» سؤالك وملخصًا لخرائطك (النجوم والأعمدة والكواكب) إلى خادمنا وإلى مزوّد ذكاء اصطناعي. لا يُرسل اسمك ولا مكان ميلادك أبدًا، لكن الملخص محسوب من تاريخ ميلادك ووقته، لذا يمكن استنتاجهما منه. يمكنك إيقاف ذلك من الخصوصية.",
+    "ai_consent_decline": "ليس الآن",
+    "ai_consent_title": "إرسال سؤالك إلى الذكاء الاصطناعي؟",
+    "ai_failed": "تعذّر الوصول إلى المرشد. تحقّق من اتصالك وحاول مرة أخرى؛ لم يُحتسب هذا السؤال.",
+    "privacy_ai_subtitle": "يرسل سؤالك وملخص خريطتك (دون الاسم أو مكان الميلاد)",
+    "privacy_ai_title": "اسأل الذكاء الاصطناعي"
+  },
+  "nl": {
+    "ai_busy": "De gids is nu even druk. Probeer het over een minuut opnieuw; deze vraag is niet meegeteld.",
+    "ai_consent_accept": "Akkoord en vragen",
+    "ai_consent_body": "Om te antwoorden stuurt Vraag AI je vraag en een samenvatting van je kaarten (sterren, pijlers en planeten) naar onze server en een AI-aanbieder. Je naam en geboorteplaats worden nooit verstuurd, maar de samenvatting is berekend uit je geboortedatum en -tijd, dus die zijn eruit af te leiden. Je kunt dit uitzetten bij Privacy.",
+    "ai_consent_decline": "Niet nu",
+    "ai_consent_title": "Je vraag naar de AI sturen?",
+    "ai_failed": "De gids is niet bereikbaar. Controleer je verbinding en probeer het opnieuw; deze vraag is niet meegeteld.",
+    "privacy_ai_subtitle": "Stuurt je vraag en een kaartsamenvatting (zonder naam of geboorteplaats)",
+    "privacy_ai_title": "Vraag AI"
+  },
+  "bn": {
+    "ai_busy": "গাইড এখন ব্যস্ত। এক মিনিট পরে আবার চেষ্টা করুন; এই প্রশ্নটি গোনা হয়নি।",
+    "ai_consent_accept": "সম্মত হয়ে জিজ্ঞাসা করুন",
+    "ai_consent_body": "উত্তর দিতে, AI-কে জিজ্ঞাসা আপনার প্রশ্ন এবং আপনার চার্টের সারাংশ (তারা, স্তম্ভ ও গ্রহ) আমাদের সার্ভার ও একটি AI প্রদানকারীর কাছে পাঠায়। আপনার নাম ও জন্মস্থান কখনো পাঠানো হয় না, তবে সারাংশটি আপনার জন্মতারিখ ও সময় থেকে তৈরি, তাই তা থেকে এগুলো অনুমান করা যেতে পারে। গোপনীয়তা থেকে এটি বন্ধ করতে পারেন।",
+    "ai_consent_decline": "এখন নয়",
+    "ai_consent_title": "আপনার প্রশ্ন AI-কে পাঠাবেন?",
+    "ai_failed": "গাইডের সাথে যোগাযোগ করা যায়নি। সংযোগ দেখে আবার চেষ্টা করুন; এই প্রশ্নটি গোনা হয়নি।",
+    "privacy_ai_subtitle": "আপনার প্রশ্ন ও চার্টের সারাংশ পাঠায় (নাম বা জন্মস্থান ছাড়া)",
+    "privacy_ai_title": "AI-কে জিজ্ঞাসা"
+  }
+}

@@ -88,7 +88,18 @@ export function PrivacyScreen() {
                 state.analytics,
                 (on) => void model.setAnalytics(on),
               )}
+              showDivider={services.askAi !== null}
             />
+            {services.askAi !== null ? (
+              <OrtusListRow
+                title={t.tf("privacy_ai_title")}
+                subtitle={t.tf("privacy_ai_subtitle")}
+                trailing={RowTrailing.toggle(
+                  state.aiConsent,
+                  (on) => void model.setAiConsent(on),
+                )}
+              />
+            ) : null}
           </OrtusCard>
         </Reveal>
         <Reveal index={2}>
